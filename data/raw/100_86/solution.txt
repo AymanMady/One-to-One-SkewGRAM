@@ -1,0 +1,4 @@
+Result of ILP2 for 100_86:
+Path length: 5
+Path : [14, 36, 66, 97, 75]
+Execution time: 24.5192 seconds
