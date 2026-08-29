@@ -1,0 +1,4 @@
+Result of ILP2 for 100_151:
+Path length: 15
+Path : [41, 58, 61, 49, 23, 94, 46, 95, 1, 69, 70, 80, 83, 91, 93]
+Execution time: 4.4962 seconds

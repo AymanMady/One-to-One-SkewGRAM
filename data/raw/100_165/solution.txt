@@ -1,0 +1,4 @@
+Result of ILP2 for 100_165:
+Path length: 6
+Path : [30, 82, 9, 67, 88, 55]
+Execution time: 34.6000 seconds
