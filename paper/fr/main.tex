@@ -338,13 +338,13 @@ soit connexe.
 
 Un sous-chemin contigu d'un chemin valide dans $D$ reste un chemin valide dans $D$. Ainsi, cette dernière étape n'a besoin d'imposer que la condition de connexité $G$.
 
-Nous utilisons une procédure de fenêtre glissante combinée à une structure Union-Find incrémentale \cite{tarjan1975}. Pour un chemin candidat de longueur $L$, la complexité dans le pire des cas est
+Nous utilisons une procédure de fenêtre glissante combinée à une structure Union-Find incrémentale \cite{tarjan1975}. Pour chaque position de départ, la fenêtre est étendue d'un nœud à la fois, et chaque nouveau nœud est comparé à tous les nœuds déjà présents dans la fenêtre. Pour un chemin candidat de longueur $L$, la complexité dans le pire des cas est donc
 
 \[
-O(L^2\alpha(L)),
+O(L^3\alpha(L)),
 \]
 
-où $\alpha$ est la fonction inverse d'Ackermann.
+où $\alpha$ est la fonction inverse d'Ackermann. Ce coût est négligeable en pratique, car un chemin candidat ne peut pas être plus long que le plus long chemin de $D$ ($L \le 24$ nœuds sur les instances évaluées).
 
 Cette étape finale est exacte : chaque chemin retourné par l'algorithme satisfait la définition d'un chemin $(D,G)$-consistant.
 
@@ -356,7 +356,7 @@ Cette étape finale est exacte : chaque chemin retourné par l'algorithme satisf
 
 \subsection{Configuration Expérimentale}
 
-Nous évaluons la méthode proposée sur 38 instances synthétiques d'Erdős--Rényi \cite{erdos1959}, contenant chacune 100 nœuds. Un optimum ILP2 est disponible pour 36 des 38 instances.
+Nous évaluons la méthode proposée sur 200 instances synthétiques d'Erdős--Rényi \cite{erdos1959}, contenant chacune 100 nœuds. Un optimum ILP2 est disponible pour 197 des 200 instances ; les comparaisons avec ILP2 portent donc sur ces 197 instances.
 
 La comparaison inclut :
 
@@ -368,7 +368,9 @@ La comparaison inclut :
 
 La dimension des embeddings est 32, avec 40 marches par nœud de départ, une longueur de marche maximale de 30, une fenêtre de contexte de 3, et cinq échantillons négatifs structurels par paire positive. Le décodeur effectue 30 000 marches Monte-Carlo par instance.
 
-Toutes les expériences utilisent la graine aléatoire fixe \texttt{SEED=42}. La configuration complète des hyperparamètres est fournie en Annexe~\ref{sec:hyperparams}.
+Toutes les expériences utilisent la graine aléatoire fixe \texttt{SEED=42}, ré-initialisée au début de chaque instance, de sorte que le résultat obtenu sur une instance ne dépend pas de l'ordre de traitement des instances. Chaque chemin retourné est vérifié comme étant $(D,G)$-consistant. La configuration complète des hyperparamètres est fournie en Annexe~\ref{sec:hyperparams}.
+
+Les temps d'ILP2 proviennent des fichiers de solution fournis avec le jeu de données et ont été mesurés sur une autre machine ; les temps de One-to-one Skew-GRAM ont été mesurés sur une machine partagée à 8 cœurs CPU. Les accélérations sont donc indicatives.
 
 % ============================================================
 % TABLE 1
@@ -377,7 +379,7 @@ Toutes les expériences utilisent la graine aléatoire fixe \texttt{SEED=42}. La
 \begin{table}[htbp]
 \centering
 \caption{
-Comparaison des méthodes sur 38 instances synthétiques de 100 nœuds. Les optima ILP2 sont disponibles pour 36 instances.
+Comparaison des méthodes sur les 197 instances synthétiques de 100 nœuds pour lesquelles un optimum ILP2 est disponible. Accélération : médiane du rapport des temps par instance.
 }
 \label{tab:results}
 
@@ -401,16 +403,16 @@ GNN DL2 \cite{sidi_dl}
 \\
 
 ILP2 \cite{sidi}
-& $9.97$
-& $28.0$ s
+& $10.02$
+& $29.9$ s
 & référence
 
 \\
 
 \textbf{One-to-one Skew-GRAM}
-& $\mathbf{7.13}$
-& $\mathbf{2.7}$ s
-& $\mathbf{\sim10\times}$
+& $\mathbf{9.59}$
+& $\mathbf{5.4}$ s
+& $\mathbf{\sim5\times}$
 
 \\
 
@@ -419,16 +421,18 @@ ILP2 \cite{sidi}
 
 \end{table}
 
-La méthode proposée obtient une longueur de chemin moyenne de 7,13 nœuds, comparée à 9,97 nœuds pour ILP2. La différence relative moyenne correspondante est d'environ
+La méthode proposée obtient une longueur de chemin moyenne de 9,59 nœuds, comparée à 10,02 nœuds pour ILP2. La différence relative moyenne correspondante est d'environ
 
 \[
-\frac{7.13-9.97}{9.97}
-\approx -28.5\%.
+\frac{9.59-10.02}{10.02}
+\approx -4.3\%.
 \]
 
-Le temps d'exécution moyen diminue de 28,0 secondes pour ILP2 à 2,7 secondes pour One-to-one Skew-GRAM, correspondant à une accélération d'environ 10,4$\times$.
+One-to-one Skew-GRAM atteint l'optimum ILP2 sur 146 des 197 instances (74\,\%) et se trouve à au plus un nœud de celui-ci sur 181 instances (92\,\%). Il ne retourne jamais un chemin plus long que l'optimum ILP2, ce qui est cohérent avec l'exactitude d'ILP2.
 
-Les résultats indiquent donc un compromis qualité/temps substantiel : l'heuristique proposée ne retrouve pas systématiquement l'optimum exact, mais elle obtient des chemins considérablement plus longs que l'approche GNN précédente tout en nécessitant beaucoup moins de calculs qu'ILP2.
+Le temps d'exécution moyen diminue de 29,9 secondes pour ILP2 à 5,4 secondes pour One-to-one Skew-GRAM. L'accélération médiane par instance est d'environ 5,2$\times$, et la méthode proposée est plus rapide qu'ILP2 sur 190 des 197 instances.
+
+Les résultats indiquent donc un compromis qualité/temps favorable : l'heuristique proposée ne retrouve pas toujours l'optimum exact, mais elle l'atteint sur la plupart des instances et obtient des chemins considérablement plus longs que l'approche GNN précédente tout en nécessitant beaucoup moins de calculs qu'ILP2.
 
 % ============================================================
 % TABLE 2
@@ -468,25 +472,25 @@ Comparaison instance par instance entre One-to-one Skew-GRAM et ILP2 sur dix ins
 \\
 \midrule
 
-100\_121 & 6  & 6  & $0.0\%$   & 19.59 & 0.69 \\
-100\_402 & 11 & 11 & $0.0\%$   & 13.16 & 0.80 \\
-100\_190 & 11 & 11 & $0.0\%$   & 25.44 & 0.77 \\
-100\_197 & 11 & 9  & $-18.2\%$ & 19.73 & 0.70 \\
-100\_14  & 12 & 9  & $-25.0\%$ & 8.51  & 0.77 \\
-100\_320 & 12 & 8  & $-33.3\%$ & 33.91 & 0.80 \\
-100\_128 & 13 & 8  & $-38.5\%$ & 18.44 & 0.90 \\
-100\_66  & 16 & 9  & $-43.8\%$ & 9.98  & 0.97 \\
-100\_388 & 15 & 8  & $-46.7\%$ & 58.18 & 0.84 \\
-100\_527 & 11 & 4  & $-63.6\%$ & 15.83 & 1.04 \\
+100\_121 & 6  & 6  & $0.0\%$   & 19.59 & 3.69 \\
+100\_402 & 11 & 11 & $0.0\%$   & 13.16 & 3.84 \\
+100\_190 & 11 & 11 & $0.0\%$   & 25.44 & 5.08 \\
+100\_14  & 12 & 12 & $0.0\%$   & 8.51  & 5.05 \\
+100\_320 & 12 & 12 & $0.0\%$   & 33.91 & 5.41 \\
+100\_66  & 16 & 16 & $0.0\%$   & 9.98  & 6.11 \\
+100\_128 & 13 & 11 & $-15.4\%$ & 18.44 & 7.32 \\
+100\_197 & 11 & 9  & $-18.2\%$ & 19.73 & 4.48 \\
+100\_388 & 15 & 12 & $-20.0\%$ & 58.18 & 5.46 \\
+100\_527 & 11 & 4  & $-63.6\%$ & 15.83 & 7.51 \\
 
 \bottomrule
 \end{tabular}
 
 \end{table}
 
-Le Tableau~\ref{tab:per-instance} illustre la variabilité de l'heuristique selon les instances. One-to-one Skew-GRAM correspond exactement à ILP2 sur plusieurs instances, dont 100\_121, 100\_402 et 100\_190. Sur les 36 instances avec un optimum connu, il atteint l'optimum ILP2 sur 13 instances.
+Le Tableau~\ref{tab:per-instance} illustre la variabilité de l'heuristique selon les instances. One-to-one Skew-GRAM correspond exactement à ILP2 sur six de ces dix instances, dont 100\_66, dont l'optimum contient 16 nœuds. Sur les 197 instances avec un optimum connu, il atteint l'optimum ILP2 sur 146 instances.
 
-Le temps d'exécution reste considérablement plus faible pour toutes les instances présentées. La différence est particulièrement visible pour des instances telles que 100\_388, où ILP2 nécessite 58,18 secondes alors que la méthode proposée ne nécessite que 0,84 seconde.
+Le temps d'exécution reste plus faible pour toutes les instances présentées. La différence est particulièrement visible pour des instances telles que 100\_388, où ILP2 nécessite 58,18 secondes alors que la méthode proposée nécessite 5,46 secondes.
 
 La variabilité de la qualité de la solution est attendue car le décodeur repose sur un échantillonnage stochastique. Certaines instances contiennent des chemins prometteurs qui sont plus faciles à atteindre grâce au guidage appris, tandis que d'autres nécessitent l'exploration de branches moins probables.
 
@@ -542,7 +546,7 @@ Deuxièmement, l'anticipation DAG fournit une information exacte qui peut être 
 
 Troisièmement, $G$ est délibérément utilisé comme structure de guidage et de validation plutôt que d'être incorporé dans l'objectif de l'embedding. Cela permet de garder le problème d'apprentissage de représentation concentré sur la structure dirigée qui définit l'ordre de chemin valide, tandis que la contrainte de connexité globale est gérée explicitement pendant le décodage et l'extraction.
 
-La méthode proposée ne doit donc pas être interprétée comme un remplacement d'ILP2 lorsque l'optimalité garantie est requise. Son principal avantage est le compromis qualité-temps : elle obtient des chemins considérablement plus longs que l'approche GNN précédente tout en étant environ dix fois plus rapide que le solveur exact sur les instances évaluées.
+La méthode proposée ne doit donc pas être interprétée comme un remplacement d'ILP2 lorsque l'optimalité garantie est requise. Son principal avantage est le compromis qualité-temps : elle obtient des chemins considérablement plus longs que l'approche GNN précédente et atteint l'optimum exact sur la plupart des instances, tout en étant environ cinq fois plus rapide que le solveur exact sur les instances évaluées.
 
 % ============================================================
 % CONCLUSION
@@ -552,7 +556,7 @@ La méthode proposée ne doit donc pas être interprétée comme un remplacement
 
 Nous avons présenté \textbf{One-to-one SkewGRAM}, une approche hybride pour le problème NP-difficile One-to-one SkewGRAM. La méthode combine des embeddings de nœuds de type Skip-Gram appris à partir de marches aléatoires orientées sur $D$ avec une anticipation DAG exacte, une stratégie de décodage guidée par la connexité, et une étape finale d'extraction exacte basée sur Union-Find.
 
-Les résultats expérimentaux sur 38 instances synthétiques de 100 nœuds montrent que l'approche proposée offre un solide compromis qualité/temps. Elle obtient une longueur de chemin moyenne de 7,13 nœuds en 2,7 secondes, contre 9,97 nœuds en 28,0 secondes pour le solveur exact ILP2. Elle atteint l'optimum ILP2 sur 13 des 36 instances pour lesquelles un optimum est disponible, tout en nécessitant beaucoup moins de calcul. L'étude d'ablation confirme également l'importance de l'anticipation DAG pour maintenir des chemins candidats plus longs.
+Les résultats expérimentaux sur 200 instances synthétiques de 100 nœuds montrent que l'approche proposée offre un solide compromis qualité/temps. Elle obtient une longueur de chemin moyenne de 9,59 nœuds en 5,4 secondes, contre 10,02 nœuds en 29,9 secondes pour le solveur exact ILP2. Elle atteint l'optimum ILP2 sur 146 des 197 instances pour lesquelles un optimum est disponible, tout en nécessitant beaucoup moins de calcul. L'étude d'ablation confirme également l'importance de l'anticipation DAG pour maintenir des chemins candidats plus longs.
 
 Ces résultats suggèrent que la combinaison de représentations de nœuds apprises avec des algorithmes de graphes spécifiques au problème peut constituer une alternative efficace à la fois à l'optimisation purement exacte et au décodage neuronal de bout en bout pour les problèmes combinatoires sur graphes couplés.
 

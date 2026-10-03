@@ -32,7 +32,7 @@ Un chemin $P = (v_1, v_2, \dots, v_k)$ dans $D$ est dit **(D,G)-consistant** si 
 ## 🚀 Notre Contribution : One-to-One Skew-GRAM
 
 Les travaux antérieurs (GNN, ILP2) montrent des limites sévères :
-- **ILP2** (solveur exact) : trouve la solution optimale mais prend **28 secondes** par instance de 100 nœuds.
+- **ILP2** (solveur exact) : trouve la solution optimale mais prend **~30 secondes** par instance de 100 nœuds.
 - **GNN (DL2)** : rapide mais trouve des chemins de seulement **1.2 nœuds** en moyenne.
 
 Notre approche, **One-to-One Skew-GRAM**, transpose le principe du Skip-Gram (Mikolov et al., 2013), via le paradigme DeepWalk/node2vec, à ce problème d'optimisation combinatoire sur deux graphes couplés. C'est la **seule** méthode utilisée : les embeddings sont entraînés uniquement sur $D$, et la contrainte de $G$ n'intervient qu'au décodage.
@@ -46,30 +46,34 @@ Le pipeline complet :
 
 ---
 
-## 📊 Résultats Expérimentaux (sur 38 instances, 100 nœuds, dont 36 avec optimum ILP2 connu)
+## 📊 Résultats Expérimentaux (sur 200 instances, 100 nœuds, dont 197 avec optimum ILP2 connu)
+
+Moyennes calculées sur les 197 instances avec optimum ILP2 connu.
 
 | Méthode | Longueur moy. | Temps moy. | vs ILP2 (Vitesse) |
 |---|---|---|---|
 | GNN DL2 (état de l'art) | ~1.2 nœuds | — | — |
-| **ILP2** (solveur exact, référence) | **9.97 nœuds** | **28 secondes** | référence |
-| **🥇 One-to-One Skew-GRAM (notre méthode)** | **7.13 nœuds** | **2.7 secondes** | **~10x plus rapide** |
+| **ILP2** (solveur exact, référence) | **10.02 nœuds** | **29.9 secondes** | référence |
+| **🥇 One-to-One Skew-GRAM (notre méthode)** | **9.59 nœuds** | **5.4 secondes** | **~5x plus rapide** (médiane) |
 
-- ✅ **Qualité solide pour une heuristique :** ~7.1 nœuds en moyenne (écart moyen de **-30%** vs l'optimum ILP2), égale ou dépasse ILP2 sur **13 des 36** instances avec optimum connu — très largement au-dessus de l'état de l'art GNN (1.2 nœuds).
-- ✅ **Accélération significative :** ~2.7 secondes par instance en moyenne, soit **~10x plus rapide** qu'ILP2.
+- ✅ **Qualité solide pour une heuristique :** 9.59 nœuds en moyenne (écart moyen de **-4%** vs l'optimum ILP2). L'optimum ILP2 est atteint sur **146 des 197** instances (74 %), et Skew-GRAM est à au plus 1 nœud de l'optimum sur 181 instances (92 %) — très largement au-dessus de l'état de l'art GNN (1.2 nœuds).
+- ✅ **Accélération significative :** 5.4 secondes par instance en moyenne, soit une accélération médiane de **~5x** par rapport à ILP2 (plus rapide sur 190 des 197 instances). Les temps ILP2 viennent des fichiers `solution.txt` (mesurés sur une autre machine) : l'accélération est indicative.
 - 🔍 **Diagnostic clé :** l'anticipation DAG (étape A) est le facteur dominant de la qualité — sans elle (décodage par similarité d'embeddings seule), la longueur moyenne retombe à 5.87 nœuds. Les instances les plus faibles restent sensibles à la variance de l'échantillonnage stochastique (graine fixe) plutôt qu'à une limite structurelle de la méthode.
 
 ---
 
 ## ⚙️ Reproductibilité
 
-Le code complet de l'algorithme G-First Guidé et de l'évaluation est disponible dans le notebook Jupyter :
+Le code complet de One-to-One Skew-GRAM et de l'évaluation est disponible dans le notebook Jupyter :
 - `one_to_one_skewgram.ipynb`
+
+Chaque instance est traitée avec la même graine (`SEED = 42`), ré-initialisée au début de l'instance : les résultats sont reproductibles et ne dépendent pas de l'ordre de traitement. Le notebook évalue **toutes** les instances complètes de `data/raw/` et vérifie que chaque chemin retourné est bien (D,G)-consistant.
 
 ### Comment exécuter :
 1. Installez les dépendances : `pip install -r requirements.txt`.
 2. Ouvrez `one_to_one_skewgram.ipynb` dans Jupyter ou VS Code.
 3. Cliquez sur **"Run All"** (Exécuter tout).
-4. Les résultats sont sauvegardés dans `results/summary.csv` et `results/per_instance_results.csv`.
+4. Les résultats sont sauvegardés dans `results/summary.csv` et `results/per_instance_results.csv`, et les figures (en anglais) dans `figures/`. Durée : environ 15 à 20 minutes pour 200 instances.
 
 > Les scripts de `scripts/` et le notebook utilisent des chemins relatifs à la racine du dépôt : lancez-les **depuis la racine** (ex. `python scripts/download_instances.py --target 300`).
 

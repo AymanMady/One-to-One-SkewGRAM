@@ -341,13 +341,13 @@ is connected.
 
 A contiguous sub-path of a valid $D$-path remains a valid $D$-path. Thus, this final step only needs to enforce the $G$-connectivity condition.
 
-We use a sliding-window procedure combined with an incremental Union-Find structure \cite{tarjan1975}. For a candidate path of length $L$, the worst-case complexity is
+We use a sliding-window procedure combined with an incremental Union-Find structure \cite{tarjan1975}. For each start position, the window is extended one node at a time, and each new node is compared with every node already in the window. For a candidate path of length $L$, the worst-case complexity is therefore
 
 \[
-O(L^2\alpha(L)),
+O(L^3\alpha(L)),
 \]
 
-where $\alpha$ is the inverse Ackermann function.
+where $\alpha$ is the inverse Ackermann function. This cost is negligible in practice, since a candidate path cannot be longer than the longest path in $D$ ($L \le 24$ nodes on the evaluated instances).
 
 This final step is exact: every path returned by the algorithm satisfies the definition of a $(D,G)$-consistent path.
 
@@ -359,7 +359,7 @@ This final step is exact: every path returned by the algorithm satisfies the def
 
 \subsection{Experimental Setup}
 
-We evaluate the proposed method on 38 synthetic Erdős--Rényi instances \cite{erdos1959}, each containing 100 nodes. An ILP2 optimum is available for 36 of the 38 instances.
+We evaluate the proposed method on 200 synthetic Erdős--Rényi instances \cite{erdos1959}, each containing 100 nodes. An ILP2 optimum is available for 197 of the 200 instances; comparisons with ILP2 are therefore computed on these 197 instances.
 
 The comparison includes:
 
@@ -371,7 +371,9 @@ The comparison includes:
 
 The embedding dimension is 32, with 40 walks per starting node, a maximum walk length of 30, a context window of 3, and five structural negative samples per positive pair. The decoder performs 30,000 Monte-Carlo walks per instance.
 
-All experiments use the fixed random seed \texttt{SEED=42}. The complete hyperparameter configuration is provided in Appendix~\ref{sec:hyperparams}.
+All experiments use the fixed random seed \texttt{SEED=42}, re-initialized at the start of each instance so that the result obtained on an instance does not depend on the order in which instances are processed. Every returned path is checked to be $(D,G)$-consistent. The complete hyperparameter configuration is provided in Appendix~\ref{sec:hyperparams}.
+
+ILP2 runtimes are taken from the solution files provided with the dataset and were measured on a different machine; One-to-one Skew-GRAM runtimes were measured on a shared 8-core CPU machine. Speedups should therefore be read as indicative.
 
 % ============================================================
 % TABLE 1
@@ -380,7 +382,7 @@ All experiments use the fixed random seed \texttt{SEED=42}. The complete hyperpa
 \begin{table}[htbp]
 \centering
 \caption{
-Comparison of methods on 38 synthetic instances with 100 nodes. ILP2 optima are available for 36 instances.
+Comparison of methods on the 197 synthetic 100-node instances for which an ILP2 optimum is available. Speedup: median of the per-instance runtime ratio.
 }
 \label{tab:results}
 
@@ -404,16 +406,16 @@ GNN DL2 \cite{sidi_dl}
 \\
 
 ILP2 \cite{sidi}
-& $9.97$
-& $28.0$ s
+& $10.02$
+& $29.9$ s
 & reference
 
 \\
 
 \textbf{One-to-one Skew-GRAM}
-& $\mathbf{7.13}$
-& $\mathbf{2.7}$ s
-& $\mathbf{\sim10\times}$
+& $\mathbf{9.59}$
+& $\mathbf{5.4}$ s
+& $\mathbf{\sim5\times}$
 
 \\
 
@@ -422,16 +424,18 @@ ILP2 \cite{sidi}
 
 \end{table}
 
-The proposed method obtains an average path length of 7.13 nodes, compared with 9.97 nodes for ILP2. The corresponding average relative difference is approximately
+The proposed method obtains an average path length of 9.59 nodes, compared with 10.02 nodes for ILP2. The corresponding average relative difference is approximately
 
 \[
-\frac{7.13-9.97}{9.97}
-\approx -28.5\%.
+\frac{9.59-10.02}{10.02}
+\approx -4.3\%.
 \]
 
-The mean runtime decreases from 28.0 seconds for ILP2 to 2.7 seconds for One-to-one Skew-GRAM, corresponding to a speedup of approximately 10.4$\times$.
+One-to-one Skew-GRAM reaches the ILP2 optimum on 146 of the 197 instances (74\%) and is within one node of it on 181 instances (92\%). It never returns a path longer than the ILP2 optimum, which is consistent with the exactness of ILP2.
 
-The results therefore indicate a substantial quality--time trade-off: the proposed heuristic does not consistently recover the exact optimum, but it obtains considerably longer paths than the previous GNN approach while requiring substantially less computation than ILP2.
+The mean runtime decreases from 29.9 seconds for ILP2 to 5.4 seconds for One-to-one Skew-GRAM. The median per-instance speedup is approximately 5.2$\times$, and the proposed method is faster than ILP2 on 190 of the 197 instances.
+
+The results therefore indicate a favorable quality--time trade-off: the proposed heuristic does not always recover the exact optimum, but it reaches it on most instances and obtains considerably longer paths than the previous GNN approach while requiring substantially less computation than ILP2.
 
 % ============================================================
 % TABLE 2
@@ -471,25 +475,25 @@ Per-instance comparison between One-to-one Skew-GRAM and ILP2 on ten representat
 \\
 \midrule
 
-100\_121 & 6  & 6  & $0.0\%$   & 19.59 & 0.69 \\
-100\_402 & 11 & 11 & $0.0\%$   & 13.16 & 0.80 \\
-100\_190 & 11 & 11 & $0.0\%$   & 25.44 & 0.77 \\
-100\_197 & 11 & 9  & $-18.2\%$ & 19.73 & 0.70 \\
-100\_14  & 12 & 9  & $-25.0\%$ & 8.51  & 0.77 \\
-100\_320 & 12 & 8  & $-33.3\%$ & 33.91 & 0.80 \\
-100\_128 & 13 & 8  & $-38.5\%$ & 18.44 & 0.90 \\
-100\_66  & 16 & 9  & $-43.8\%$ & 9.98  & 0.97 \\
-100\_388 & 15 & 8  & $-46.7\%$ & 58.18 & 0.84 \\
-100\_527 & 11 & 4  & $-63.6\%$ & 15.83 & 1.04 \\
+100\_121 & 6  & 6  & $0.0\%$   & 19.59 & 3.69 \\
+100\_402 & 11 & 11 & $0.0\%$   & 13.16 & 3.84 \\
+100\_190 & 11 & 11 & $0.0\%$   & 25.44 & 5.08 \\
+100\_14  & 12 & 12 & $0.0\%$   & 8.51  & 5.05 \\
+100\_320 & 12 & 12 & $0.0\%$   & 33.91 & 5.41 \\
+100\_66  & 16 & 16 & $0.0\%$   & 9.98  & 6.11 \\
+100\_128 & 13 & 11 & $-15.4\%$ & 18.44 & 7.32 \\
+100\_197 & 11 & 9  & $-18.2\%$ & 19.73 & 4.48 \\
+100\_388 & 15 & 12 & $-20.0\%$ & 58.18 & 5.46 \\
+100\_527 & 11 & 4  & $-63.6\%$ & 15.83 & 7.51 \\
 
 \bottomrule
 \end{tabular}
 
 \end{table}
 
-Table~\ref{tab:per-instance} illustrates the variability of the heuristic across instances. One-to-one Skew-GRAM exactly matches ILP2 on several instances, including 100\_121, 100\_402, and 100\_190. Across the 36 instances with a known optimum, it matches the ILP2 optimum on 13 instances.
+Table~\ref{tab:per-instance} illustrates the variability of the heuristic across instances. One-to-one Skew-GRAM exactly matches ILP2 on six of these ten instances, including 100\_66, whose optimum contains 16 nodes. Across the 197 instances with a known optimum, it matches the ILP2 optimum on 146 instances.
 
-The runtime remains substantially lower for all instances shown. The difference is particularly visible for instances such as 100\_388, where ILP2 requires 58.18 seconds while the proposed method requires only 0.84 seconds.
+The runtime remains lower for all instances shown. The difference is particularly visible for instances such as 100\_388, where ILP2 requires 58.18 seconds while the proposed method requires 5.46 seconds.
 
 The variability in solution quality is expected because the decoder relies on stochastic sampling. Some instances contain promising paths that are easier to reach through the learned guidance, while others require exploration of less probable branches.
 
@@ -499,7 +503,7 @@ The variability in solution quality is expected because the decoder relies on st
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.95\textwidth]{08_graph_topology_paths.png}
+\includegraphics[width=0.95\textwidth]{02_graph_topology_paths.png}
 \caption{
 Example of the two-step decoding process. Step A generates a directed path in $D$, while Step B extracts the longest contiguous sub-path that is connected in $G$.
 }
@@ -508,9 +512,9 @@ Example of the two-step decoding process. Step A generates a directed path in $D
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.95\textwidth]{05_evaluation_comparison.png}
+\includegraphics[width=0.95\textwidth]{03_evaluation_comparison.png}
 \caption{
-Per-instance path-length comparison between One-to-one Skew-GRAM and ILP2, together with the quality--time trade-off across the evaluated instances.
+Left: number of nodes missing from the One-to-one Skew-GRAM path compared with the ILP2 optimum, over the 197 instances with a known optimum (0 = optimum reached). Right: quality--time trade-off of both methods (runtime on a logarithmic scale).
 }
 \label{fig:comparison}
 \end{figure}
@@ -545,7 +549,7 @@ Second, the DAG lookahead provides exact information that can be computed effici
 
 Third, $G$ is deliberately used as a guidance and validation structure rather than being incorporated into the embedding objective. This keeps the representation-learning problem focused on the directed structure that defines valid path order, while the global connectivity constraint is handled explicitly during decoding and extraction.
 
-The proposed method should therefore not be interpreted as a replacement for ILP2 when guaranteed optimality is required. Its main advantage is the quality--time trade-off: it obtains substantially longer paths than the previous GNN approach while being approximately ten times faster than the exact solver on the evaluated instances.
+The proposed method should therefore not be interpreted as a replacement for ILP2 when guaranteed optimality is required. Its main advantage is the quality--time trade-off: it obtains substantially longer paths than the previous GNN approach and reaches the exact optimum on most instances, while being approximately five times faster than the exact solver on the evaluated instances.
 
 % ============================================================
 % CONCLUSION
@@ -555,7 +559,7 @@ The proposed method should therefore not be interpreted as a replacement for ILP
 
 We presented \textbf{One-to-one SkewGRAM}, a hybrid approach for the NP-hard One-to-one SkewGRAM problem. The method combines Skip-Gram-style node embeddings learned from directed random walks over $D$ with an exact DAG lookahead, a connectivity-guided decoding strategy, and an exact final extraction step based on Union-Find.
 
-The experimental results on 38 synthetic 100-node instances show that the proposed approach provides a strong quality--time trade-off. It obtains an average path length of 7.13 nodes in 2.7 seconds, compared with 9.97 nodes in 28.0 seconds for the exact ILP2 solver. It reaches the ILP2 optimum on 13 of the 36 instances for which an optimum is available, while requiring substantially less computation. The ablation study also confirms the importance of the DAG lookahead for maintaining longer candidate paths.
+The experimental results on 200 synthetic 100-node instances show that the proposed approach provides a strong quality--time trade-off. It obtains an average path length of 9.59 nodes in 5.4 seconds, compared with 10.02 nodes in 29.9 seconds for the exact ILP2 solver. It reaches the ILP2 optimum on 146 of the 197 instances for which an optimum is available, while requiring substantially less computation. The ablation study also confirms the importance of the DAG lookahead for maintaining longer candidate paths.
 
 These results suggest that combining learned node representations with problem-specific graph algorithms can provide an effective alternative to both purely exact optimization and end-to-end neural decoding for coupled-graph combinatorial problems.
 

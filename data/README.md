@@ -7,25 +7,22 @@ https://drive.google.com/drive/folders/18meW_x2uaSTFxhaZagfzLYe5p-RwvOHE
 
 Le dossier contient environ **890 instances** nommées `100_<k>`, chacune avec trois fichiers :
 
-- `graphD.txt` — un graphe **orienté** Erdős–Rényi G(100, p) (arêtes `a-b` = arc a → b) ; c'est un DAG (vérifié empiriquement, 39/39 instances)
-- `graphG.txt` — un second graphe sur les mêmes 100 nœuds, à interpréter comme **non-orienté** (les lignes `a-b` sont symétrisées ; `G` n'a pas d'orientation par définition du problème) ; connexe dans 38/39 instances (voir `REPORT.md` §2)
+- `graphD.txt` — un graphe **orienté** Erdős–Rényi G(100, p) (arêtes `a-b` = arc a → b) ; c'est un DAG (vérifié par le notebook sur les 200/200 instances téléchargées)
+- `graphG.txt` — un second graphe sur les mêmes 100 nœuds, à interpréter comme **non-orienté** (les lignes `a-b` sont symétrisées ; `G` n'a pas d'orientation par définition du problème) ; connexe dans 195/200 instances (les 5 autres — `100_44`, `100_51`, `100_63`, `100_96`, `100_126` — ont seulement 1 ou 2 sommets isolés ; elles restent valides, car le problème n'exige que la connexité du sous-graphe induit par le chemin)
 - `solution.txt` — résultat d'un solveur exact ILP2 pour le plus long chemin **(D,G)-consistant** : un chemin dans `graphD` dont l'ensemble de sommets induit un sous-graphe connexe dans `graphG` (voir `REPORT.md` §1-2 pour les définitions formelles et la correction méthodologique)
 
 Voir `REPORT.md` (§2) pour le détail de l'analyse ayant permis d'identifier cette structure et de vérifier l'orientation des arêtes.
 
 ## Échantillon effectivement téléchargé dans `data/raw/`
 
-**39 instances**, collectées en plusieurs vagues : 11 tirées aléatoirement avec la graine `SEED=42` parmi les instances disposant d'une `solution.txt` exploitable, 27 tirées lors de sessions de collecte séquentielles ultérieures (une fois le quota Drive temporairement levé), plus l'instance `100_1` ajoutée manuellement pour illustrer le cas `"No solution found"`.
+**200 instances** :
 
-```
-100_1    100_121  100_126  100_128  100_14   100_18   100_190  100_193
-100_197  100_201  100_207  100_227  100_228  100_251  100_254  100_269
-100_304  100_320  100_324  100_332  100_341  100_352  100_388  100_397
-100_402  100_411  100_413  100_429  100_437  100_457  100_471  100_478
-100_489  100_491  100_52   100_527  100_563  100_66   100_80
-```
+- **`100_1` à `100_170`** (170 instances consécutives) ;
+- **30 instances** issues du premier échantillon, collecté en plusieurs vagues (tirage aléatoire avec la graine `SEED=42` puis sessions séquentielles) : `100_190`, `100_193`, `100_197`, `100_201`, `100_207`, `100_227`, `100_228`, `100_251`, `100_254`, `100_269`, `100_304`, `100_320`, `100_324`, `100_332`, `100_341`, `100_352`, `100_388`, `100_397`, `100_402`, `100_411`, `100_413`, `100_429`, `100_437`, `100_457`, `100_471`, `100_478`, `100_489`, `100_491`, `100_527`, `100_563`.
 
-## Pourquoi seulement 39 instances sur ~890 ?
+ILP2 n'a pas de solution (`"No solution found"`) pour 3 d'entre elles : `100_1`, `100_2` et `100_563`.
+
+## Pourquoi seulement 200 instances sur ~890 ?
 
 Le téléchargement programmatique via `gdown` (API publique Google Drive) est soumis à un **quota anti-abus par fichier/IP** (« Cannot retrieve the public link of the file [...] have had many accesses »). Une première tentative de téléchargement **parallèle** (12 workers simultanés) a déclenché ce quota après ~100 fichiers, bloquant ensuite l'accès à **tout** fichier du dossier — y compris des fichiers jamais sollicités auparavant. Le quota s'est ensuite levé et redéclenché à plusieurs reprises au cours de sessions de téléchargement **séquentielles** : chaque vague permettait de récupérer 15 à 25 instances supplémentaires avant de retomber en blocage, sans qu'on puisse prédire précisément la durée de chaque cycle de blocage/déblocage.
 
