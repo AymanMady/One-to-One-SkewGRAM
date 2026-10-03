@@ -58,7 +58,7 @@ Moyennes calculées sur les 197 instances avec optimum ILP2 connu.
 
 - ✅ **Qualité solide pour une heuristique :** 9.59 nœuds en moyenne (écart moyen de **-4%** vs l'optimum ILP2). L'optimum ILP2 est atteint sur **146 des 197** instances (74 %), et Skew-GRAM est à au plus 1 nœud de l'optimum sur 181 instances (92 %) — très largement au-dessus de l'état de l'art GNN (1.2 nœuds).
 - ✅ **Accélération significative :** 5.4 secondes par instance en moyenne, soit une accélération médiane de **~5x** par rapport à ILP2 (plus rapide sur 190 des 197 instances). Les temps ILP2 viennent des fichiers `solution.txt` (mesurés sur une autre machine) : l'accélération est indicative.
-- 🔍 **Diagnostic clé :** l'anticipation DAG (étape A) est le facteur dominant de la qualité — sans elle (décodage par similarité d'embeddings seule), la longueur moyenne retombe à 5.87 nœuds. Les instances les plus faibles restent sensibles à la variance de l'échantillonnage stochastique (graine fixe) plutôt qu'à une limite structurelle de la méthode.
+- 🔍 **Diagnostic clé :** l'anticipation DAG (étape A) est le facteur dominant de la qualité — sans elle (décodage par similarité d'embeddings + bonus G), la longueur moyenne retombe à 7.19 nœuds (-25 %), et l'optimum n'est plus atteint que sur 26 instances au lieu de 146. Les instances les plus faibles restent sensibles à la variance de l'échantillonnage stochastique (graine fixe) plutôt qu'à une limite structurelle de la méthode.
 
 ---
 

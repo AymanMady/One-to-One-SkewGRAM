@@ -522,11 +522,11 @@ Comparaison de la longueur de chemin par instance entre One-to-one Skew-GRAM et 
 
 \subsection{Ablation de l'Anticipation DAG}
 
-Nous évaluons également l'importance de l'anticipation DAG exacte en la retirant du décodeur.
+Nous évaluons également l'importance de l'anticipation DAG exacte en la retirant du décodeur, c'est-à-dire en supprimant le terme $\mathrm{lf}(v)/\tau_{lf}$ de $S(u,v)$ tout en conservant la similarité d'embeddings, le bonus de connexité dans $G$ et les mêmes graines aléatoires.
 
-Sans l'anticipation, le décodage basé principalement sur la similarité d'embeddings produit une longueur de chemin moyenne de 5,87 nœuds, comparée à 7,13 nœuds pour l'approche complète.
+Sur les 197 instances avec un optimum connu, le décodage sans anticipation produit une longueur de chemin moyenne de 7,19 nœuds, comparée à 9,59 nœuds pour l'approche complète.
 
-Cela représente une réduction d'environ 17,7\%.
+Cela représente une réduction d'environ 25,0\%. Le chemin devient plus court sur 156 des 197 instances et plus long sur une seule, et l'optimum ILP2 n'est plus atteint que sur 26 instances au lieu de 146.
 
 Ce résultat confirme que la similarité d'embeddings seule ne capture pas adéquatement le potentiel de chemin restant dans le DAG. Un nœud candidat peut être localement compatible avec le nœud courant tout en menant à une branche courte ou à un puits.
 

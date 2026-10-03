@@ -525,11 +525,11 @@ Left: number of nodes missing from the One-to-one Skew-GRAM path compared with t
 
 \subsection{Ablation of DAG Lookahead}
 
-We also evaluate the importance of the exact DAG lookahead by removing it from the decoder.
+We also evaluate the importance of the exact DAG lookahead by removing it from the decoder, i.e., by dropping the term $\mathrm{lf}(v)/\tau_{lf}$ from $S(u,v)$ while keeping the embedding similarity, the $G$-connectivity bonus, and the same random seeds.
 
-Without the lookahead, decoding based primarily on embedding similarity produces an average path length of 5.87 nodes, compared with 7.13 nodes for the complete approach.
+On the 197 instances with a known optimum, decoding without the lookahead produces an average path length of 7.19 nodes, compared with 9.59 nodes for the complete approach.
 
-This represents a reduction of approximately 17.7\%.
+This represents a reduction of approximately 25.0\%. The path becomes shorter on 156 of the 197 instances and longer on only one, and the ILP2 optimum is reached on 26 instances instead of 146.
 
 The result confirms that embedding similarity alone does not adequately capture the remaining path potential in the DAG. A candidate node may be locally compatible with the current node while leading to a short branch or a sink.
 
