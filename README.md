@@ -66,17 +66,36 @@ Le code complet de l'algorithme G-First Guidé et de l'évaluation est disponibl
 - `one_to_one_skewgram.ipynb`
 
 ### Comment exécuter :
-1. Ouvrez `one_to_one_skewgram.ipynb` dans Jupyter ou VS Code.
-2. Cliquez sur **"Run All"** (Exécuter tout).
-3. Les résultats sont sauvegardés dans `results/summary.csv` et `results/per_instance_results.csv`.
+1. Installez les dépendances : `pip install -r requirements.txt`.
+2. Ouvrez `one_to_one_skewgram.ipynb` dans Jupyter ou VS Code.
+3. Cliquez sur **"Run All"** (Exécuter tout).
+4. Les résultats sont sauvegardés dans `results/summary.csv` et `results/per_instance_results.csv`.
+
+> Les scripts de `scripts/` et le notebook utilisent des chemins relatifs à la racine du dépôt : lancez-les **depuis la racine** (ex. `python scripts/download_instances.py --target 300`).
 
 ### Organisation du dépôt
-- `data/raw/` : Instances de graphes (fichiers `graphD.txt`, `graphG.txt`, `solution.txt`).
-- `figures/` : Visualisations générées.
-- `results/` : Tableaux de résultats bruts (`.csv`).
-- `paper_en/` : Code source LaTeX de notre article (version anglaise) pour I2COMSAPP'26.
-- `paper_fr/` : Code source LaTeX de notre article (version française).
-- `Microsoft+Word+Proceedings+Templates/` : Template Springer fourni par la conférence.
+```
+One-to-One-SkewGRAM/
+├── README.md
+├── requirements.txt             # Dépendances Python
+├── one_to_one_skewgram.ipynb    # Notebook principal (algorithme + évaluation)
+├── data/
+│   ├── README.md                # Provenance et format du dataset
+│   └── raw/100_<k>/             # Instances : graphD.txt, graphG.txt, solution.txt
+├── scripts/                     # Téléchargement des instances depuis Google Drive
+│   ├── download_instances.py
+│   ├── fetch_instances.py
+│   └── smart_download.py
+├── results/                     # Résultats bruts (.csv) générés par le notebook
+├── figures/                     # Figures générées par le notebook
+│   ├── diagrams/                # Schémas statiques (problème, pipeline, exemple de DAG)
+│   └── archive/                 # Anciennes versions des figures
+├── paper/
+│   ├── en/                      # Article LaTeX (anglais) pour I2COMSAPP'26
+│   └── fr/                      # Article LaTeX (français)
+└── docs/
+    └── references/              # Articles de référence (travaux antérieurs)
+```
 
 ---
 *Ce projet est réalisé dans le cadre de nos études à l'Institut Supérieur du Numérique (SupNum) et de notre publication pour la conférence I2COMSAPP'26, Université de Nouakchott, Mauritanie.*

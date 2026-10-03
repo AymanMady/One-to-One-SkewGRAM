@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Dossiers temporaires des scripts de téléchargement
+data/_tmp_inst/
+data/_tmp_download/
+
+# LaTeX (artefacts de compilation)
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# Système / éditeurs
+.DS_Store
+Thumbs.db
+*~

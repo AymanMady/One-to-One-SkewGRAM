@@ -1,0 +1,11 @@
+# Notebook (one_to_one_skewgram.ipynb)
+numpy
+pandas
+networkx
+matplotlib
+scikit-learn
+gensim
+torch
+
+# Scripts de téléchargement des instances (scripts/)
+gdown
