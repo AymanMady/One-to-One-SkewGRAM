@@ -1,0 +1,4 @@
+Result of ILP2 for 100_431:
+Path length: 11
+Path : [71, 68, 31, 34, 6, 84, 4, 92, 42, 81, 3]
+Execution time: 24.4701 seconds

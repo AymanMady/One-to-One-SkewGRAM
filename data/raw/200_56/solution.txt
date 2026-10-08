@@ -1,0 +1,4 @@
+Result of ILP2 for 200_56:
+Path length: 9
+Path : [42, 63, 105, 135, 133, 184, 40, 14, 4]
+Execution time: 166.6955 seconds

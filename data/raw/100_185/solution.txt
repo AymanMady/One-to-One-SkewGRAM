@@ -1,0 +1,4 @@
+Result of ILP2 for 100_185:
+Path length: 12
+Path : [44, 74, 71, 17, 34, 61, 88, 38, 100, 69, 16, 87]
+Execution time: 19.3729 seconds

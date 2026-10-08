@@ -1,0 +1,4 @@
+Result of ILP2 for 200_57:
+Path length: 9
+Path : [132, 200, 149, 57, 51, 165, 114, 19, 155]
+Execution time: 309.0509 seconds

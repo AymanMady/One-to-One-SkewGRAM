@@ -1,0 +1,4 @@
+Result of ILP2 for 100_520:
+Path length: 9
+Path : [41, 43, 13, 60, 55, 31, 39, 76, 91]
+Execution time: 69.2540 seconds

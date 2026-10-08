@@ -1,0 +1,4 @@
+Result of ILP2 for 100_380:
+Path length: 10
+Path : [25, 67, 16, 76, 92, 12, 61, 98, 74, 4]
+Execution time: 48.2083 seconds

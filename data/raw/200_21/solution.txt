@@ -1,0 +1,4 @@
+Result of ILP2 for 200_21:
+Path length: 5
+Path : [74, 141, 97, 95, 100]
+Execution time: 422.0088 seconds

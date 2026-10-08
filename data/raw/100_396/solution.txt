@@ -1,0 +1,4 @@
+Result of ILP2 for 100_396:
+Path length: 10
+Path : [12, 72, 48, 94, 93, 42, 20, 35, 26, 57]
+Execution time: 67.7208 seconds

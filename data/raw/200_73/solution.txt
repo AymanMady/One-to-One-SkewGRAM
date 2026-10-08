@@ -1,0 +1,3 @@
+Result of ILP2 for 200_73:
+No solution found.
+Execution time: 2.3904 seconds

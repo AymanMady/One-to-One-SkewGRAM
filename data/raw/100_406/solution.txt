@@ -1,0 +1,4 @@
+Result of ILP2 for 100_406:
+Path length: 8
+Path : [57, 12, 15, 82, 79, 29, 55, 34]
+Execution time: 18.9477 seconds

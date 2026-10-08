@@ -1,0 +1,4 @@
+Result of ILP2 for 100_305:
+Path length: 12
+Path : [33, 1, 59, 49, 74, 32, 14, 91, 39, 24, 19, 46]
+Execution time: 31.3472 seconds

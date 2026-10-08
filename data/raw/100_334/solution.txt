@@ -1,0 +1,4 @@
+Result of ILP2 for 100_334:
+Path length: 10
+Path : [57, 89, 1, 49, 88, 8, 82, 93, 66, 2]
+Execution time: 23.6586 seconds

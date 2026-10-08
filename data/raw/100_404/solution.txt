@@ -1,0 +1,4 @@
+Result of ILP2 for 100_404:
+Path length: 6
+Path : [46, 97, 53, 43, 60, 99]
+Execution time: 73.6015 seconds

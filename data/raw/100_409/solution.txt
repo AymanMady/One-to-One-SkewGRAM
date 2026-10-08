@@ -1,0 +1,4 @@
+Result of ILP2 for 100_409:
+Path length: 8
+Path : [71, 17, 29, 69, 60, 30, 20, 42]
+Execution time: 21.2223 seconds

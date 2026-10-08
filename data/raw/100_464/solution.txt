@@ -1,0 +1,4 @@
+Result of ILP2 for 100_464:
+Path length: 10
+Path : [65, 88, 79, 89, 97, 17, 81, 34, 68, 6]
+Execution time: 25.1477 seconds

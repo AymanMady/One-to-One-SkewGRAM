@@ -1,0 +1,4 @@
+Result of ILP2 for 100_199:
+Path length: 11
+Path : [68, 99, 31, 98, 73, 11, 17, 21, 64, 87, 34]
+Execution time: 7.5726 seconds

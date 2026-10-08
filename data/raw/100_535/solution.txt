@@ -1,0 +1,4 @@
+Result of ILP2 for 100_535:
+Path length: 9
+Path : [43, 77, 92, 57, 68, 96, 84, 16, 7]
+Execution time: 9.8408 seconds

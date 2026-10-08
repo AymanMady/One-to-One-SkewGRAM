@@ -1,0 +1,4 @@
+Result of ILP2 for 200_43:
+Path length: 14
+Path : [43, 120, 79, 185, 143, 61, 63, 148, 164, 47, 191, 125, 100, 159]
+Execution time: 111.8735 seconds

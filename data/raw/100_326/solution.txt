@@ -1,0 +1,4 @@
+Result of ILP2 for 100_326:
+Path length: 10
+Path : [28, 24, 33, 9, 100, 65, 91, 22, 3, 21]
+Execution time: 29.0698 seconds

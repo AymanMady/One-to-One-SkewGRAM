@@ -1,0 +1,4 @@
+Result of ILP2 for 100_286:
+Path length: 11
+Path : [11, 39, 44, 2, 46, 7, 83, 9, 88, 87, 41]
+Execution time: 25.3670 seconds

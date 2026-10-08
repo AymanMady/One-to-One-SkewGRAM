@@ -1,0 +1,4 @@
+Result of ILP2 for 200_40:
+Path length: 7
+Path : [44, 190, 22, 103, 123, 142, 172]
+Execution time: 333.4384 seconds

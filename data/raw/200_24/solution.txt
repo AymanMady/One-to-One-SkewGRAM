@@ -1,0 +1,4 @@
+Result of ILP2 for 200_24:
+Path length: 11
+Path : [169, 117, 129, 20, 164, 193, 121, 77, 18, 196, 70]
+Execution time: 273.7832 seconds

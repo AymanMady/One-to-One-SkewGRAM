@@ -1,0 +1,4 @@
+Result of ILP2 for 200_35:
+Path length: 12
+Path : [26, 182, 1, 110, 76, 72, 77, 150, 8, 4, 145, 107]
+Execution time: 264.3243 seconds

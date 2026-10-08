@@ -1,0 +1,3 @@
+Result of ILP2 for 200_75:
+No solution found.
+Execution time: 0.6104 seconds

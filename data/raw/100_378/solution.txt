@@ -1,0 +1,4 @@
+Result of ILP2 for 100_378:
+Path length: 6
+Path : [2, 87, 32, 4, 60, 57]
+Execution time: 36.6744 seconds

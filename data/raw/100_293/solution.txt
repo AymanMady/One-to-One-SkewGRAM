@@ -1,0 +1,4 @@
+Result of ILP2 for 100_293:
+Path length: 11
+Path : [90, 67, 38, 87, 77, 97, 71, 9, 3, 62, 16]
+Execution time: 48.8771 seconds

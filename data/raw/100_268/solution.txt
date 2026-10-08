@@ -1,0 +1,4 @@
+Result of ILP2 for 100_268:
+Path length: 16
+Path : [47, 39, 100, 20, 59, 93, 58, 44, 35, 91, 4, 81, 50, 22, 40, 7]
+Execution time: 38.0689 seconds

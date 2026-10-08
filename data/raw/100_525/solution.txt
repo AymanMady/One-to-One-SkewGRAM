@@ -1,0 +1,4 @@
+Result of ILP2 for 100_525:
+Path length: 7
+Path : [70, 92, 36, 6, 65, 77, 44]
+Execution time: 32.1391 seconds
