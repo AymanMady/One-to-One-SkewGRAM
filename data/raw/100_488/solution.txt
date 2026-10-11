@@ -1,4 +1,0 @@
-Result of ILP2 for 100_488:
-Path length: 15
-Path : [44, 74, 63, 34, 19, 91, 73, 26, 12, 21, 17, 57, 25, 52, 62]
-Execution time: 8.0528 seconds

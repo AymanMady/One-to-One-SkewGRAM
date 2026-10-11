@@ -1,4 +1,0 @@
-Result of ILP2 for 100_538:
-Path length: 13
-Path : [98, 10, 52, 53, 70, 9, 11, 56, 50, 73, 6, 45, 18]
-Execution time: 13.0716 seconds

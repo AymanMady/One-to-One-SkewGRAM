@@ -1,4 +1,0 @@
-Result of ILP2 for 100_360:
-Path length: 16
-Path : [35, 4, 13, 26, 20, 24, 91, 59, 68, 28, 74, 48, 49, 27, 94, 77]
-Execution time: 12.4823 seconds

@@ -1,4 +1,0 @@
-Result of ILP2 for 100_386:
-Path length: 14
-Path : [69, 41, 24, 73, 7, 4, 54, 62, 15, 88, 51, 21, 95, 86]
-Execution time: 7.8998 seconds

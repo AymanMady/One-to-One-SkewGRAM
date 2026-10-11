@@ -1,4 +1,0 @@
-Result of ILP2 for 100_480:
-Path length: 13
-Path : [49, 20, 24, 38, 1, 7, 82, 58, 18, 22, 15, 92, 14]
-Execution time: 16.9032 seconds

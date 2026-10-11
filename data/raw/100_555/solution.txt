@@ -1,4 +1,0 @@
-Result of ILP2 for 100_555:
-Path length: 11
-Path : [93, 12, 62, 9, 28, 60, 14, 31, 3, 46, 57]
-Execution time: 30.2518 seconds

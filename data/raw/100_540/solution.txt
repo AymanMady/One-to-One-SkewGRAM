@@ -1,4 +1,0 @@
-Result of ILP2 for 100_540:
-Path length: 8
-Path : [89, 55, 88, 61, 81, 44, 54, 72]
-Execution time: 22.0385 seconds

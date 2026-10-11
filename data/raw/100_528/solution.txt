@@ -1,4 +1,0 @@
-Result of ILP2 for 100_528:
-Path length: 12
-Path : [68, 27, 39, 72, 7, 12, 46, 75, 66, 74, 95, 86]
-Execution time: 15.3612 seconds

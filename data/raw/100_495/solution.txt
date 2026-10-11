@@ -1,4 +1,0 @@
-Result of ILP2 for 100_495:
-Path length: 17
-Path : [5, 9, 55, 59, 95, 35, 10, 6, 29, 32, 98, 4, 22, 78, 75, 12, 39]
-Execution time: 10.0188 seconds

@@ -1,0 +1,26 @@
+organism,pathway,rel_path,n_nodes,n_edges_D,n_edges_G,cycle_type,skewgram_length,skewgram_time_s,skewgram_path
+aae,path_aae00260_dD3_dG3,aae/path_aae00260_dD3_dG3,13,17,2,Acyclic (Pure DAG),1,0.9703662395477295,[11]
+aae,path_aae00540_dD3_dG3,aae/path_aae00540_dD3_dG3,15,19,0,Acyclic (Pure DAG),1,1.0638747215270996,[11]
+aae,path_aae00550_dD3_dG3,aae/path_aae00550_dD3_dG3,14,40,1,Acyclic (Pure DAG),1,2.1033806800842285,[11]
+bsu,path_bsu00130_dD3_dG3,bsu/path_bsu00130_dD3_dG3,9,26,14,Acyclic (Pure DAG),6,2.7424535751342773,"[6, 5, 1, 4, 3, 2]"
+bsu,path_bsu00340_dD3_dG3,bsu/path_bsu00340_dD3_dG3,14,46,26,Acyclic (Pure DAG),8,3.9401659965515137,"[5, 13, 12, 11, 14, 10, 7, 6]"
+bsu,path_bsu00480_dD3_dG3,bsu/path_bsu00480_dD3_dG3,5,3,0,Acyclic (Pure DAG),1,0.608267068862915,[1]
+eco,path_eco00280_dD3_dG3,eco/path_eco00280_dD3_dG3,6,6,4,Acyclic (Pure DAG),3,0.7529971599578857,"[4, 5, 3]"
+eco,path_eco00300_dD3_dG3,eco/path_eco00300_dD3_dG3,12,40,1,Acyclic (Pure DAG),2,2.905621290206909,"[12, 1]"
+eco,path_eco00340_dD3_dG3,eco/path_eco00340_dD3_dG3,10,30,33,Acyclic (Pure DAG),10,2.501694440841675,"[1, 9, 8, 7, 10, 6, 5, 4, 3, 2]"
+mtv,path_mtv00300_dD3_dG3,mtv/path_mtv00300_dD3_dG3,12,40,3,Acyclic (Pure DAG),2,2.8362061977386475,"[2, 3]"
+mtv,path_mtv00340_dD3_dG3,mtv/path_mtv00340_dD3_dG3,14,46,23,Acyclic (Pure DAG),7,4.29826807975769,"[8, 7, 10, 6, 5, 3, 2]"
+mtv,path_mtv00350_dD3_dG3,mtv/path_mtv00350_dD3_dG3,10,8,0,Acyclic (Pure DAG),1,0.7439043521881104,[2]
+pae,path_pae00300_dD3_dG3,pae/path_pae00300_dD3_dG3,12,40,2,Acyclic (Pure DAG),2,2.847398281097412,"[12, 1]"
+pae,path_pae00340_dD3_dG3,pae/path_pae00340_dD3_dG3,15,40,13,Acyclic (Pure DAG),4,1.838716745376587,"[6, 5, 4, 2]"
+pae,path_pae00361_dD3_dG3,pae/path_pae00361_dD3_dG3,4,3,2,Acyclic (Pure DAG),2,0.7470741271972656,"[1, 2]"
+sau,path_sau00130_dD3_dG3,sau/path_sau00130_dD3_dG3,9,26,7,Acyclic (Pure DAG),4,2.6604442596435547,"[6, 5, 1, 2]"
+sau,path_sau00300_dD3_dG3,sau/path_sau00300_dD3_dG3,8,20,12,Acyclic (Pure DAG),5,1.7302603721618652,"[1, 2, 4, 5, 6]"
+sau,path_sau00340_dD3_dG3,sau/path_sau00340_dD3_dG3,13,32,28,Acyclic (Pure DAG),7,1.6498849391937256,"[5, 12, 11, 10, 13, 9, 8]"
+syn,path_syn00860_dD3_dG3,syn/path_syn00860_dD3_dG3,13,11,2,Acyclic (Pure DAG),1,0.8387439250946045,[11]
+aae,path_aae00030_dD3_dG3,aae/path_aae00030_dD3_dG3,16,110,4,Reversible reactions only (2-cycles),1,4.028653621673584,[4]
+aae,path_aae00240_dD3_dG3,aae/path_aae00240_dD3_dG3,38,198,1,Reversible reactions only (2-cycles),2,7.34090256690979,"[4, 5]"
+bsu,path_bsu00040_dD3_dG3,bsu/path_bsu00040_dD3_dG3,19,57,11,Reversible reactions only (2-cycles),4,2.051628589630127,"[1, 2, 3, 5]"
+bsu,path_bsu00052_dD3_dG3,bsu/path_bsu00052_dD3_dG3,21,83,1,Reversible reactions only (2-cycles),2,2.437596321105957,"[20, 16]"
+eco,path_eco00052_dD3_dG3,eco/path_eco00052_dD3_dG3,29,109,18,Reversible reactions only (2-cycles),4,2.554013729095459,"[28, 27, 17, 19]"
+eco,path_eco00053_dD3_dG3,eco/path_eco00053_dD3_dG3,12,27,9,Reversible reactions only (2-cycles),4,1.427239179611206,"[6, 11, 12, 10]"

@@ -1,4 +1,0 @@
-Result of ILP2 for 100_526:
-Path length: 12
-Path : [2, 6, 28, 86, 62, 63, 47, 89, 46, 80, 88, 25]
-Execution time: 16.0004 seconds

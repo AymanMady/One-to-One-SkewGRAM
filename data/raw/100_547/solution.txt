@@ -1,4 +1,0 @@
-Result of ILP2 for 100_547:
-Path length: 10
-Path : [44, 65, 6, 86, 47, 33, 57, 18, 79, 82]
-Execution time: 28.5084 seconds

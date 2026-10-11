@@ -1,4 +1,0 @@
-Result of ILP2 for 100_320:
-Path length: 12
-Path : [81, 62, 31, 46, 15, 86, 11, 53, 69, 93, 6, 80]
-Execution time: 33.9114 seconds

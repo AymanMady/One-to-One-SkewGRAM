@@ -1,0 +1,26 @@
+organism,pathway,rel_path,n_nodes,n_edges_D,n_edges_G,is_dag,n_2cycles,can_be_dag_without_2cycles,cycle_type,is_G_connected,n_connected_components_G
+aae,path_aae00260_dD3_dG3,aae/path_aae00260_dD3_dG3,13,17,2,True,0,True,Acyclic (Pure DAG),False,11
+aae,path_aae00540_dD3_dG3,aae/path_aae00540_dD3_dG3,20,19,0,True,0,True,Acyclic (Pure DAG),False,20
+aae,path_aae00550_dD3_dG3,aae/path_aae00550_dD3_dG3,21,40,1,True,0,True,Acyclic (Pure DAG),False,20
+bsu,path_bsu00130_dD3_dG3,bsu/path_bsu00130_dD3_dG3,13,26,14,True,0,True,Acyclic (Pure DAG),False,8
+bsu,path_bsu00340_dD3_dG3,bsu/path_bsu00340_dD3_dG3,15,46,26,True,0,True,Acyclic (Pure DAG),False,5
+bsu,path_bsu00480_dD3_dG3,bsu/path_bsu00480_dD3_dG3,12,3,0,True,0,True,Acyclic (Pure DAG),False,12
+eco,path_eco00280_dD3_dG3,eco/path_eco00280_dD3_dG3,14,6,4,True,0,True,Acyclic (Pure DAG),False,10
+eco,path_eco00300_dD3_dG3,eco/path_eco00300_dD3_dG3,12,40,1,True,0,True,Acyclic (Pure DAG),False,11
+eco,path_eco00340_dD3_dG3,eco/path_eco00340_dD3_dG3,10,30,33,True,0,True,Acyclic (Pure DAG),True,1
+mtv,path_mtv00300_dD3_dG3,mtv/path_mtv00300_dD3_dG3,12,40,3,True,0,True,Acyclic (Pure DAG),False,9
+mtv,path_mtv00340_dD3_dG3,mtv/path_mtv00340_dD3_dG3,16,46,23,True,0,True,Acyclic (Pure DAG),False,6
+mtv,path_mtv00350_dD3_dG3,mtv/path_mtv00350_dD3_dG3,16,8,0,True,0,True,Acyclic (Pure DAG),False,16
+pae,path_pae00300_dD3_dG3,pae/path_pae00300_dD3_dG3,13,40,2,True,0,True,Acyclic (Pure DAG),False,11
+pae,path_pae00340_dD3_dG3,pae/path_pae00340_dD3_dG3,17,40,13,True,0,True,Acyclic (Pure DAG),False,8
+pae,path_pae00361_dD3_dG3,pae/path_pae00361_dD3_dG3,12,3,2,True,0,True,Acyclic (Pure DAG),False,10
+sau,path_sau00130_dD3_dG3,sau/path_sau00130_dD3_dG3,10,26,7,True,0,True,Acyclic (Pure DAG),False,6
+sau,path_sau00300_dD3_dG3,sau/path_sau00300_dD3_dG3,10,20,12,True,0,True,Acyclic (Pure DAG),False,5
+sau,path_sau00340_dD3_dG3,sau/path_sau00340_dD3_dG3,14,32,28,True,0,True,Acyclic (Pure DAG),False,4
+syn,path_syn00860_dD3_dG3,syn/path_syn00860_dD3_dG3,17,11,2,True,0,True,Acyclic (Pure DAG),False,15
+aae,path_aae00030_dD3_dG3,aae/path_aae00030_dD3_dG3,16,176,4,False,66,True,Reversible reactions only (2-cycles),False,13
+aae,path_aae00240_dD3_dG3,aae/path_aae00240_dD3_dG3,39,223,1,False,25,True,Reversible reactions only (2-cycles),False,38
+bsu,path_bsu00040_dD3_dG3,bsu/path_bsu00040_dD3_dG3,22,96,11,False,39,True,Reversible reactions only (2-cycles),False,13
+bsu,path_bsu00052_dD3_dG3,bsu/path_bsu00052_dD3_dG3,22,99,1,False,16,True,Reversible reactions only (2-cycles),False,21
+eco,path_eco00052_dD3_dG3,eco/path_eco00052_dD3_dG3,29,131,18,False,22,True,Reversible reactions only (2-cycles),False,19
+eco,path_eco00053_dD3_dG3,eco/path_eco00053_dD3_dG3,15,37,9,False,10,True,Reversible reactions only (2-cycles),False,11

@@ -1,4 +1,0 @@
-Result of ILP2 for 100_483:
-Path length: 8
-Path : [71, 68, 8, 12, 100, 75, 76, 59]
-Execution time: 27.0765 seconds

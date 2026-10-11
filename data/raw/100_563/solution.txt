@@ -1,3 +1,0 @@
-Result of ILP2 for 100_563:
-No solution found.
-Execution time: 3.4998 seconds

@@ -1,4 +1,0 @@
-Result of ILP2 for 100_433:
-Path length: 14
-Path : [88, 43, 34, 64, 20, 79, 15, 42, 74, 99, 36, 87, 11, 91]
-Execution time: 4.0163 seconds

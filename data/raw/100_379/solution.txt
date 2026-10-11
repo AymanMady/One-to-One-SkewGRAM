@@ -1,4 +1,0 @@
-Result of ILP2 for 100_379:
-Path length: 16
-Path : [99, 30, 68, 55, 51, 65, 9, 22, 1, 25, 91, 80, 98, 93, 94, 6]
-Execution time: 8.2416 seconds
