@@ -13,16 +13,20 @@ Le dossier contient environ **890 instances** nommées `100_<k>`, chacune avec t
 
 Voir `REPORT.md` (§2) pour le détail de l'analyse ayant permis d'identifier cette structure et de vérifier l'orientation des arêtes.
 
-## Échantillon effectivement téléchargé dans `data/raw/`
+## Contenu actuel de `data/raw/`
 
-**200 instances** :
+| Instances | Nœuds | p | Avec `solution.txt` (ILP2) | Usage |
+|---|---|---|---|---|
+| `100_1` à `100_300` | 100 | 0.08 | 300 (ILP2 sans solution pour `100_1`, `100_2`) | évaluation principale |
+| `200_*` (300 dossiers) | 200 | 0.05 | 75 (ILP2 sans solution pour `200_69`, `200_72` à `200_75`) | évaluation principale (les 75 avec `solution.txt`) |
+| `500_1` à `500_10` | 500 | 0.05 | 0 | passage à l'échelle |
+| `1000_1` à `1000_5` | 1000 | 0.05 | 0 | passage à l'échelle, **générées par nous** (`python scripts/generate_large_instances.py`, graine 42) avec le même procédé : ordre topologique aléatoire, arcs « plus tôt → plus tard » avec la probabilité p, et `G` = G(n, p) indépendant |
 
-- **`100_1` à `100_170`** (170 instances consécutives) ;
-- **30 instances** issues du premier échantillon, collecté en plusieurs vagues (tirage aléatoire avec la graine `SEED=42` puis sessions séquentielles) : `100_190`, `100_193`, `100_197`, `100_201`, `100_207`, `100_227`, `100_228`, `100_251`, `100_254`, `100_269`, `100_304`, `100_320`, `100_324`, `100_332`, `100_341`, `100_352`, `100_388`, `100_397`, `100_402`, `100_411`, `100_413`, `100_429`, `100_437`, `100_457`, `100_471`, `100_478`, `100_489`, `100_491`, `100_527`, `100_563`.
+Le notebook (`list_instances()`) et `scripts/run_experiments.py seeds` utilisent les 375 instances 100/200 nœuds qui ont un `solution.txt` (368 avec un optimum ILP2). Une version antérieure de l'échantillon (200 instances, dont des numéros au-delà de 300 comme `100_527`) n'est plus présente.
 
-ILP2 n'a pas de solution (`"No solution found"`) pour 3 d'entre elles : `100_1`, `100_2` et `100_563`.
+Les voies métaboliques réelles (KEGG, 50 organismes) sont dans `data/Biological_data/<organisme>/path_<voie>_dD3_dG3/` (`graphD.txt`, `graphG.txt`, `nodes.txt`) ; `scripts/audit_biological_data.py` les audite et sélectionne les 25 voies évaluées (`results/biological_benchmark_selection.csv`).
 
-## Pourquoi seulement 200 instances sur ~890 ?
+## Pourquoi pas toutes les ~890 instances du dossier Drive ?
 
 Le téléchargement programmatique via `gdown` (API publique Google Drive) est soumis à un **quota anti-abus par fichier/IP** (« Cannot retrieve the public link of the file [...] have had many accesses »). Une première tentative de téléchargement **parallèle** (12 workers simultanés) a déclenché ce quota après ~100 fichiers, bloquant ensuite l'accès à **tout** fichier du dossier — y compris des fichiers jamais sollicités auparavant. Le quota s'est ensuite levé et redéclenché à plusieurs reprises au cours de sessions de téléchargement **séquentielles** : chaque vague permettait de récupérer 15 à 25 instances supplémentaires avant de retomber en blocage, sans qu'on puisse prédire précisément la durée de chaque cycle de blocage/déblocage.
 

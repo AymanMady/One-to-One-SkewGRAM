@@ -8,7 +8,7 @@
 
 ## 📌 À propos de ce projet
 
-Ce dépôt contient le code et les données liés à notre article de recherche, intitulé **"One-to-one SkewGRAM: from biology to NLP"**, soumis à la conférence **I2COMSAPP'26** (Track 11: Other Relevant Topics in AI — Optimisation Combinatoire).
+Ce dépôt contient le code et les données liés à notre article de recherche, intitulé **"One-to-one SkewGRAM: Applying NLP Embeddings to Biological Graph Optimization"** (titre initial : *"One-to-one SkewGRAM: from biology to NLP"*), accepté à la conférence **I2COMSAPP'26** (Track 11: Other Relevant Topics in AI — Optimisation Combinatoire). La version finale (camera-ready) est dans `paper/en/` (version française à jour dans `paper/fr/`) ; la réponse aux reviewers est un document séparé, `paper/en/response.tex`.
 
 Le projet s'attaque à un problème d'optimisation combinatoire complexe issu de la **bio-informatique**, connu sous le nom de **problème One-to-One SkewGRAM**. Ce problème vise à identifier des signatures métaboliques et génomiques conservées entre différentes espèces, en cherchant le **plus long chemin cohérent** à travers deux réseaux biologiques simultanément.
 
@@ -46,19 +46,25 @@ Le pipeline complet :
 
 ---
 
-## 📊 Résultats Expérimentaux (sur 200 instances, 100 nœuds, dont 197 avec optimum ILP2 connu)
+## 📊 Résultats Expérimentaux (version finale de l'article)
 
-Moyennes calculées sur les 197 instances avec optimum ILP2 connu.
+**Instances synthétiques Erdős–Rényi** (5 graines par instance, 42 à 46). Seules les instances avec une solution ILP2 sont comparées : 298 sur 300 à 100 nœuds, 70 sur 75 à 200 nœuds.
 
-| Méthode | Longueur moy. | Temps moy. | vs ILP2 (Vitesse) |
-|---|---|---|---|
-| GNN DL2 (état de l'art) | ~1.2 nœuds | — | — |
-| **ILP2** (solveur exact, référence) | **10.02 nœuds** | **29.9 secondes** | référence |
-| **🥇 One-to-One Skew-GRAM (notre méthode)** | **9.59 nœuds** | **5.4 secondes** | **~5x plus rapide** (médiane) |
+| | 100 nœuds | 200 nœuds |
+|---|---|---|
+| ILP2 : longueur moyenne / temps moyen | 9.93 nœuds / 29.1 s | 9.64 nœuds / 251.8 s |
+| **Skew-GRAM** : longueur moyenne (± écart-type entre graines) | **9.47 ± 0.02** | **7.89 ± 0.12** |
+| Exécutions qui atteignent la longueur ILP2 | 71.3 % | 30.0 % |
+| Exécutions à au plus 1 nœud d'ILP2 | 90.3 % | 53.1 % |
+| Temps moyen Skew-GRAM | 6.9 s | 11.3 s |
+| Accélération médiane vs ILP2 | **4.0×** | **21.2×** |
 
-- ✅ **Qualité solide pour une heuristique :** 9.59 nœuds en moyenne (écart moyen de **-4%** vs l'optimum ILP2). L'optimum ILP2 est atteint sur **146 des 197** instances (74 %), et Skew-GRAM est à au plus 1 nœud de l'optimum sur 181 instances (92 %) — très largement au-dessus de l'état de l'art GNN (1.2 nœuds).
-- ✅ **Accélération significative :** 5.4 secondes par instance en moyenne, soit une accélération médiane de **~5x** par rapport à ILP2 (plus rapide sur 190 des 197 instances). Les temps ILP2 viennent des fichiers `solution.txt` (mesurés sur une autre machine) : l'accélération est indicative.
-- 🔍 **Diagnostic clé :** l'anticipation DAG (étape A) est le facteur dominant de la qualité — sans elle (décodage par similarité d'embeddings + bonus G), la longueur moyenne retombe à 7.19 nœuds (-25 %), et l'optimum n'est plus atteint que sur 26 instances au lieu de 146. Les instances les plus faibles restent sensibles à la variance de l'échantillonnage stochastique (graine fixe) plutôt qu'à une limite structurelle de la méthode.
+- ⚠️ **Les solutions ILP2 à 200 nœuds ne sont pas toutes optimales** : sur `200_68`, Skew-GRAM trouve un chemin (D,G)-consistant de 10 sommets (vérifié indépendamment) alors que le fichier ILP2 en indique 7. Les longueurs ILP2 sont donc traitées comme des références, et « atteindre ILP2 » signifie « longueur ≥ ILP2 ».
+- 🔍 **Ablation** : sans l'anticipation DAG, la longueur moyenne tombe de 9.49 à 7.29 nœuds à 100 nœuds (−23 %), et la longueur ILP2 n'est plus atteinte que sur 47 instances au lieu de 216 (graine 42).
+- 🧬 **Réseaux biologiques réels** : sur 25 voies métaboliques KEGG (7 bactéries), Skew-GRAM trouve l'optimum exact (calculé par énumération) sur les 25 voies avec les 5 graines. Ces voies sont petites (au plus 38 sommets) : l'énumération exacte y est plus rapide que Skew-GRAM.
+- 📈 **Passage à l'échelle** : une exécution prend en moyenne 49 s à 500 nœuds et 143 s à 1000 nœuds. Le décodage représente la plus grande part du temps, et la qualité augmente encore à 30 000 marches.
+- Les temps ILP2 viennent des fichiers `solution.txt` (mesurés sur une autre machine) : les accélérations sont indicatives. Ceux de Skew-GRAM ont été mesurés sur un portable partagé (4 exécutions en parallèle, 1 thread chacune).
+- GNN DL2 (travaux antérieurs) : ~1.2 nœuds en moyenne, rapporté sur des instances de 50 nœuds (non relancé ici).
 
 ---
 
@@ -73,7 +79,21 @@ Chaque instance est traitée avec la même graine (`SEED = 42`), ré-initialisé
 1. Installez les dépendances : `pip install -r requirements.txt`.
 2. Ouvrez `one_to_one_skewgram.ipynb` dans Jupyter ou VS Code.
 3. Cliquez sur **"Run All"** (Exécuter tout).
-4. Les résultats sont sauvegardés dans `results/summary.csv` et `results/per_instance_results.csv`, et les figures (en anglais) dans `figures/`. Durée : environ 15 à 20 minutes pour 200 instances.
+4. Les résultats sont sauvegardés dans `results/summary.csv` et `results/per_instance_results.csv`, et les figures (en anglais) dans `figures/`. Durée : environ 40 minutes pour les 375 instances.
+
+### Expériences de l'article final
+Les expériences répétées (5 graines, ablation, passage à l'échelle, KEGG) sont lancées en parallèle par `scripts/run_experiments.py`, qui réutilise directement les fonctions du notebook ; les figures et tableaux de `paper/en/` sont produits à partir des CSV par `scripts/make_paper_assets.py` :
+
+```bash
+python scripts/run_experiments.py seeds      # ~1 h sur 4 cœurs
+python scripts/run_experiments.py ablation
+python scripts/generate_large_instances.py   # instances 1000 nœuds
+python scripts/run_experiments.py scaling
+python scripts/run_experiments.py bio
+python scripts/make_paper_assets.py             # figures et tableaux anglais (paper/en/)
+python scripts/make_paper_assets.py --lang fr   # version française (paper/fr/)
+cd paper/en && tectonic main.tex             # ou pdflatex
+```
 
 > Les scripts de `scripts/` et le notebook utilisent des chemins relatifs à la racine du dépôt : lancez-les **depuis la racine** (ex. `python scripts/download_instances.py --target 300`).
 
@@ -85,17 +105,22 @@ One-to-One-SkewGRAM/
 ├── one_to_one_skewgram.ipynb    # Notebook principal (algorithme + évaluation)
 ├── data/
 │   ├── README.md                # Provenance et format du dataset
-│   └── raw/100_<k>/             # Instances : graphD.txt, graphG.txt, solution.txt
-├── scripts/                     # Téléchargement des instances depuis Google Drive
-│   ├── download_instances.py
+│   ├── raw/<n>_<k>/             # Instances synthétiques : graphD.txt, graphG.txt (+ solution.txt ILP2)
+│   └── Biological_data/         # Voies métaboliques KEGG (50 organismes)
+├── scripts/
+│   ├── run_experiments.py       # Expériences parallèles (graines, ablation, échelle, KEGG)
+│   ├── make_paper_assets.py     # Figures et tableaux de l'article à partir des CSV
+│   ├── generate_large_instances.py  # Instances Erdős–Rényi de 1000 nœuds
+│   ├── audit_biological_data.py # Audit et sélection des voies KEGG
+│   ├── download_instances.py    # Téléchargement des instances depuis Google Drive
 │   ├── fetch_instances.py
 │   └── smart_download.py
-├── results/                     # Résultats bruts (.csv) générés par le notebook
+├── results/                     # Résultats bruts (.csv) du notebook et de run_experiments.py
 ├── figures/                     # Figures générées par le notebook
 │   ├── diagrams/                # Schémas statiques (problème, pipeline, exemple de DAG)
 │   └── archive/                 # Anciennes versions des figures
 ├── paper/
-│   ├── en/                      # Article LaTeX (anglais) pour I2COMSAPP'26
+│   ├── en/                      # Article LaTeX final (anglais) ; réponse aux reviewers séparée (response.tex)
 │   └── fr/                      # Article LaTeX (français)
 └── docs/
     └── references/              # Articles de référence (travaux antérieurs)

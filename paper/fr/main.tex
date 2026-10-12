@@ -1,767 +1,310 @@
 \documentclass{llncs}
-\usepackage[utf8]{inputenc}
+
 \usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
 \usepackage[french]{babel}
 \usepackage{graphicx}
 \usepackage{amsmath,amssymb}
-\usepackage{hyperref}
 \usepackage{booktabs}
-\usepackage{algorithm}
-\usepackage{algorithmic}
-\usepackage{tabularx}
-\usepackage{multirow}
+\usepackage{cite}
+\usepackage{siunitx}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+
+\sisetup{group-digits=none, table-number-alignment=center, output-decimal-marker={,}}
+\renewcommand\UrlFont{\color{blue}\rmfamily}
+\setlength{\emergencystretch}{1.5em}
+\addto\captionsfrench{\renewcommand{\tablename}{Tableau}\renewcommand{\figurename}{Fig.}}
+% llncs n'active ses libellés français (« Résumé. », « et »...) qu'avec l'ancien nom babel « frenchb »
+\makeatletter
+\addto\extrasfrench{\switcht@francais\def\keywordname{{\bfseries Mots-clés\,:}}}
+\makeatother
 
 \begin{document}
 
-\title{One-to-one SkewGRAM : from biology to NLP}
-\author{
-Bechir Mady\inst{1} \and
+\title{One-to-one SkewGRAM : appliquer des embeddings du TAL à l'optimisation de graphes biologiques}
+
+\author{Bechir Mady\inst{1} \and
 Abderahmane Abderrahmane\inst{1} \and
 Mohamedou Yahya Cheikh Mohamed Vall\inst{1} \and
 El Moustapha Mohamed El Moustapha\inst{1} \and
 Mohamed Lemine Ahmed Sidi\inst{1} \and
-Hafedh Mohamed Babou\inst{2}
-}
+Hafedh Mohamed Babou\inst{2}}
 
-\institute{
-\inst{1}Unité de Recherche en Systèmes Intelligents Avancés (URSIA),
-Institut Supérieur du Numérique (SupNum), Nouakchott, Mauritanie\\
-\email{\{22014, 22053, 25239, 22013\}@supnum.mr,\ m-lamine.ahmed-sidi@supnum.mr}
+\institute{Unité de Recherche en Systèmes Intelligents Avancés (URSIA), Institut Supérieur du Numérique (SupNum), Nouakchott, Mauritanie\\
+\email{\{22014,22053,25239,22013\}@supnum.mr, m-lamine.ahmed-sidi@supnum.mr}
 \and
-\inst{2}École Supérieure Polytechnique (ESP), Nouakchott, Mauritanie\\
-\email{hafedh.mohamed-babou@esp.mr}
-}
+École Supérieure Polytechnique (ESP), Nouakchott, Mauritanie\\
+\email{hafedh.mohamed-babou@esp.mr}}
 
 \maketitle
 
-% ============================================================
-% ABSTRACT
-% ============================================================
-
 \begin{abstract}
+Le problème One-to-one SkewGRAM consiste à trouver un plus long chemin dans un graphe orienté acyclique $D$ dont les sommets induisent un sous-graphe connexe dans un graphe non orienté $G$ défini sur le même ensemble de sommets. Il apparaît lorsque l'on compare des voies métaboliques à des réseaux génomiques ou fonctionnels, et il est NP-difficile. Le modèle exact ILP2 demande quelques dizaines de secondes sur des instances de 100 sommets et plusieurs minutes sur des instances de 200 sommets, tandis que les décodeurs à base de réseaux de neurones sur graphes proposés auparavant renvoient des chemins d'environ un sommet. Notre méthode, Skew-GRAM, emprunte le modèle Skip-Gram au traitement automatique des langues (TAL) : les marches aléatoires orientées sur $D$ sont lues comme des phrases, et les embeddings des sommets sont appris avec des exemples négatifs tirés parmi les non-successeurs. Un décodeur Monte-Carlo combine ces embeddings avec une anticipation exacte par programmation dynamique sur $D$ et un bonus pour les sommets adjacents dans $G$ au chemin en construction. Une dernière étape Union-Find extrait le plus long sous-chemin connexe dans $G$, si bien que tout chemin renvoyé est réalisable. Sur 368 instances d'Erd\H{o}s--Rényi disposant d'une solution ILP2, avec cinq graines aléatoires, la méthode atteint la longueur ILP2 dans 71,3\,\% des exécutions à 100 sommets et dans 30,0\,\% à 200 sommets, avec des accélérations médianes par rapport à ILP2 de 4,0$\times$ et 21,2$\times$ ; sur une instance de 200 sommets, elle trouve un chemin plus long que la solution ILP2 fournie. Elle trouve l'optimum exact sur les 25 voies métaboliques KEGG et traite des graphes de 1000 sommets en 143 secondes environ. Sans l'anticipation par programmation dynamique, les chemins sont 23\,\% plus courts sur les instances de 100 sommets.
 
-Le problème One-to-one SkewGRAM est un défi d'optimisation combinatoire NP-difficile issu de la bio-informatique. Étant donnés un graphe orienté acyclique $D$ et un graphe non-orienté $G$ définis sur le même ensemble d'entités biologiques, l'objectif est de trouver le plus long chemin dans $D$ dont les sommets induisent un sous-graphe connexe dans $G$. Les méthodes d'optimisation exactes peuvent fournir des solutions optimales mais deviennent extrêmement coûteuses en temps de calcul, tandis que les approches récentes par Réseaux de Neurones sur Graphes ont tendance à générer des chemins très courts.
-
-Nous proposons \textbf{One-to-one SkewGRAM}, une approche d'embeddings de nœuds de type Skip-Gram basée sur des marches aléatoires orientées sur $D$. Les représentations apprises sont combinées avec un décodeur guidé intégrant trois signaux complémentaires : une anticipation exacte par programmation dynamique sur $D$, la similarité d'embeddings, et un bonus de connexité basé sur $G$. Puisque ces signaux guident la recherche sans imposer la contrainte globale de connexité, une procédure finale exacte à fenêtre glissante basée sur l'algorithme Union-Find extrait le plus long sous-chemin contigu satisfaisant l'exigence de connexité.
-
-L'approche proposée combine ainsi l'apprentissage de représentations avec des algorithmes de graphes exacts : les embeddings guident l'exploration, la programmation dynamique préserve le potentiel du chemin orienté, et l'étape d'extraction finale garantit la connexité requise. Une évaluation expérimentale sur des instances synthétiques est utilisée pour évaluer la qualité des solutions et l'efficacité calculatoire face aux approches exactes et d'apprentissage.
-
-\keywords{Optimisation Combinatoire \and Bio-informatique \and Algorithmes sur Graphes \and Embeddings de Nœuds \and Skip-Gram \and Programmation Dynamique \and Composantes Connexes \and Union-Find.}
+\keywords{Optimisation combinatoire \and Bio-informatique \and Embeddings de sommets \and Skip-Gram \and Programmation dynamique \and Union-Find.}
 \end{abstract}
 
 % ============================================================
-% INTRODUCTION
+\section{Introduction}
 % ============================================================
 
-\section{Introduction}
+Les systèmes biologiques se décrivent naturellement par des réseaux dont les sommets sont des entités biologiques et dont les arêtes sont des relations entre elles. Comparer deux réseaux construits sur les mêmes entités peut faire apparaître des motifs qu'aucun des deux réseaux ne montre seul. Le métabolisme, par exemple, est un réseau orienté dans lequel les réactions se succèdent le long des voies, tandis que la proximité génomique ou les interactions protéine--protéine donnent un réseau non orienté d'associations fonctionnelles~\cite{sharan2006,zaharia}. Une chaîne de réactions dont les gènes sont aussi proches les uns des autres sur le génome est candidate pour être une unité fonctionnelle conservée.
 
-L'intelligence artificielle (IA) et l'apprentissage automatique connaissent une adoption croissante en bio-informatique pour analyser des données biologiques complexes. Les systèmes biologiques peuvent naturellement être représentés sous forme de réseaux, où les sommets correspondent aux entités biologiques et les arêtes représentent leurs relations. Combiner des structures de réseaux complémentaires est particulièrement utile pour découvrir des motifs fonctionnels conservés.
+Le problème \emph{One-to-one SkewGRAM} formalise cette recherche~\cite{fertin2012,sidi2022}. Étant donnés un graphe orienté acyclique $D$ et un graphe non orienté $G$ sur le même ensemble de sommets, il s'agit de trouver un plus long chemin orienté de $D$ dont les sommets induisent un sous-graphe connexe de $G$. Le problème est NP-difficile~\cite{fertin2012,sidi}. Sa difficulté vient de l'interaction entre les deux contraintes : un successeur valide dans $D$ peut rompre la connexité dans $G$, et des sommets proches dans $G$ ne se trouvent pas forcément sur un même chemin de $D$.
 
-Par exemple, le métabolisme cellulaire peut être représenté par un graphe orienté, où les métabolites sont reliés par des réactions biochimiques dirigées illustrant un flux causal. Simultanément, la proximité génomique ou les interactions protéine-protéine (PPI) \cite{sharan2006} peuvent être modélisées par un graphe non-orienté décrivant des associations fonctionnelles. L'identification de structures simultanément significatives dans ces deux graphes peut ainsi révéler d'importants motifs biologiques.
+Les méthodes exactes résolvent le problème à l'optimum. Le programme linéaire en nombres entiers ILP2~\cite{sidi2022,sidi} demande environ 30 secondes sur les instances de 100 sommets et environ quatre minutes sur les instances de 200 sommets de notre jeu de test. Des approches par apprentissage ont aussi été étudiées~\cite{sidi_dl} : un double réseau convolutif sur graphes suivi d'un post-traitement heuristique, et un encodeur de graphe associé à un décodeur LSTM avec attention (DL2). Leur décodage séquentiel produit des chemins très courts, de 1,2 sommet en moyenne pour DL2.
 
-Le problème \textbf{One-to-one SkewGRAM} formalise cette tâche. Étant donnés un graphe orienté acyclique $D$ et un graphe non-orienté $G$ sur le même ensemble de sommets, l'objectif est de trouver le plus long chemin orienté dans $D$ dont les sommets induisent un sous-graphe connexe dans $G$. Ce problème est NP-difficile \cite{sidi, fertin2012}.
+Cet article suit une autre voie, du traitement automatique des langues (TAL) vers la biologie. Notre méthode, Skew-GRAM, lit les marches aléatoires orientées sur $D$ comme des phrases et apprend des embeddings des sommets avec le modèle Skip-Gram~\cite{mikolov}, comme le font DeepWalk et node2vec pour les graphes~\cite{perozzi,grover}. Les embeddings seuls ne résolvent pas le problème d'optimisation : nous les utilisons comme l'un des trois signaux d'un décodeur conçu pour le problème, à côté d'une anticipation exacte par programmation dynamique sur $D$ et d'un signal de connexité souple issu de $G$. Une étape d'extraction exacte impose ensuite la contrainte de connexité.
 
-La difficulté provient de l'interaction entre deux contraintes structurelles différentes. Un successeur valide dans $D$ ne préserve pas nécessairement la connexité dans $G$, tandis que des sommets fonctionnellement connectés dans $G$ peuvent ne pas former un chemin orienté dans $D$.
-
-Des travaux récents ont exploré des approches par apprentissage profond pour ce problème \cite{sidi_dl}. En particulier, une architecture GCN double avec post-traitement heuristique et un encodeur GCN combiné à un décodeur LSTM-Attention (DL2) ont été étudiés. Bien que ces approches démontrent le potentiel des méthodes basées sur l'apprentissage, la stratégie de décodage séquentiel génère des chemins très courts, DL2 produisant environ 1,2 nœud en moyenne. À l'inverse, le solveur exact ILP2 \cite{sidi} obtient des solutions optimales mais nécessite environ 28 secondes par instance de 100 nœuds.
-
-Ces limites motivent une approche hybride combinant des représentations apprises avec des algorithmes de graphes explicites. Notre idée principale est de réinterpréter les marches aléatoires orientées sur $D$ comme des phrases, suivant le paradigme Skip-Gram et DeepWalk/node2vec \cite{mikolov, perozzi, grover}. Les nœuds jouent le rôle de mots, tandis que les nœuds apparaissant dans des contextes similaires reçoivent des représentations liées.
-
-Les embeddings appris seuls, cependant, ne suffisent pas pour résoudre le problème d'optimisation complet. Nous les utilisons donc comme signal de guidage au sein d'un décodeur spécifique au problème. Le décodeur combine la similarité des embeddings avec une anticipation exacte par programmation dynamique sur $D$ et un signal de connexité souple issu de $G$. Une étape d'extraction exacte finale vérifie la contrainte de connexité.
-
-Les contributions de cet article sont :
-
+Nos contributions sont les suivantes :
 \begin{enumerate}
-    \item Un modèle d'embeddings de type Skip-Gram pour les nœuds d'un DAG, utilisant des marches aléatoires orientées, un sous-échantillonnage des hubs, et un échantillonnage négatif structurel.
-    \item Un décodeur guidé combinant une anticipation exacte du plus long chemin dans le DAG, la similarité d'embeddings apprise, et un bonus de connexité à $G$.
-    \item Une procédure exacte Union-Find à fenêtre glissante qui extrait le plus long sous-chemin $(D,G)$-consistant à partir de chaque candidat généré.
-    \item Une évaluation empirique montrant un solide compromis qualité/temps comparé au solveur exact ILP2 et à l'approche GNN précédemment rapportée.
+\item un modèle d'embeddings Skip-Gram pour les sommets d'un DAG, entraîné sur des marches aléatoires orientées, avec sous-échantillonnage des hubs et échantillonnage négatif structurel ;
+\item un décodeur guidé qui combine une anticipation exacte du plus long chemin dans $D$, la similarité des embeddings et un bonus de connexité dans $G$, suivi d'une extraction exacte par Union-Find qui garantit la réalisabilité ;
+\item une évaluation sur 375 instances synthétiques de 100 et 200 sommets (dont 368 avec une solution ILP2) avec cinq graines aléatoires, sur 15 instances plus grandes de 500 et 1000 sommets et sur 25 voies métaboliques réelles de KEGG~\cite{kanehisa2000} dont l'optimum exact est connu, ainsi qu'une ablation de l'anticipation.
 \end{enumerate}
 
 % ============================================================
-% PROBLEM FORMULATION
+\section{Travaux connexes}
 % ============================================================
 
-\section{Formulation du Problème et Propriété Mathématique}
+Le problème One-to-one SkewGRAM appartient à une famille de problèmes de comparaison de réseaux biologiques hétérogènes, comme la recherche de motifs métaboliques et génomiques dans CoMetGeNe~\cite{zaharia} et les méthodes de comparaison de réseaux présentées dans~\cite{sharan2006}. Fertin et al.~\cite{fertin2012} ont étudié sa complexité et proposé des algorithmes exacts. Ahmed Sidi et al.\ ont proposé les programmes linéaires en nombres entiers ILP1 et ILP2~\cite{sidi2022} puis des modèles de programmation par contraintes~\cite{sidi} ; ILP2 est la référence exacte utilisée dans cet article.
 
-Soit
+Parmi les méthodes d'apprentissage pour l'optimisation combinatoire sur graphes figurent les réseaux de pointeurs~\cite{vinyals2015}, l'apprentissage par renforcement de politiques de construction~\cite{bello2016,dai2017} et l'entraînement non supervisé de réseaux de neurones sur graphes~\cite{karalias2020}. Ces modèles sont entraînés sur de nombreuses instances, puis décodent une solution. Les approches d'apprentissage profond de~\cite{sidi_dl} suivent ce schéma pour notre problème. Notre modèle est au contraire entraîné sur chaque instance séparément, car les identifiants des sommets n'ont pas de sens commun d'un graphe généré indépendamment à l'autre, et les embeddings appris ne font que guider une recherche dont la réalisabilité est garantie de façon exacte. Le modèle d'embeddings lui-même suit word2vec~\cite{mikolov} et ses déclinaisons pour les graphes, DeepWalk~\cite{perozzi} et node2vec~\cite{grover}.
 
-\[
-V = \{v_1,\ldots,v_n\}
-\]
+% ============================================================
+\section{Formulation du problème}
+% ============================================================
 
-un ensemble d'entités biologiques. Nous considérons deux graphes définis sur $V$ :
-
-\begin{itemize}
-    \item $D=(V,A)$ : un graphe orienté acyclique modélisant une relation causale ou séquentielle ;
-    \item $G=(V,E)$ : un graphe non-orienté modélisant des associations fonctionnelles.
-\end{itemize}
-
-L'objectif est de trouver un chemin
-
-\[
-P=(p_1,\ldots,p_k)
-\]
-
-maximisant son nombre de sommets, sous les conditions :
-
+Soit $V$ un ensemble de $n$ entités biologiques, $D=(V,A)$ un graphe orienté acyclique qui modélise une relation causale ou séquentielle, et $G=(V,E)$ un graphe non orienté qui modélise une association fonctionnelle. Un chemin $P=(p_1,\ldots,p_k)$ est dit \emph{$(D,G)$-consistant} si
 \begin{equation}
-(p_i,p_{i+1})\in A,
-\qquad i=1,\ldots,k-1,
+(p_i,p_{i+1})\in A \quad (i=1,\ldots,k-1) \qquad\text{et}\qquad G[\{p_1,\ldots,p_k\}] \text{ est connexe}.
 \end{equation}
+L'objectif est de trouver un chemin $(D,G)$-consistant ayant le plus grand nombre de sommets. La figure~\ref{fig:problem} montre une petite instance.
 
-et
-
-\begin{equation}
-G[\{p_1,\ldots,p_k\}]
-\text{ est connexe}.
-\end{equation}
-
-Le chemin est par conséquent valide dans $D$ tandis que l'ensemble de ses sommets est connexe dans $G$. Nous appelons un tel chemin un \textbf{chemin $(D,G)$-consistant}.
-
-\begin{figure}[htbp]
+\begin{figure}[t]
 \centering
-\includegraphics[width=0.95\textwidth]{09_problem_illustration.png}
-\caption{
-Exemple jouet sur sept nœuds. $D$ et $G$ partagent le même ensemble de nœuds mais représentent des relations différentes. Une solution valide doit être un chemin orienté dans $D$ tandis que ses sommets induisent un sous-graphe connexe dans $G$.
-}
+\includegraphics[width=\textwidth]{fig1_problem.pdf}
+\caption{Instance jouet à sept sommets. Le chemin mis en évidence $1\to2\to3\to4\to5$ est l'unique optimum. Le prolonger par l'arc $5\to7$ donne le plus long chemin de $D$, mais le sommet 7 n'a aucun voisin dans $G$ parmi les autres sommets du chemin. Le préfixe $(1,2)$ n'est pas connexe dans $G$, alors que le chemin complet l'est.}
 \label{fig:problem}
 \end{figure}
 
-\subsection{La Connexité ne Peut pas Être Vérifiée Incrémentalement}
+\subsubsection{La connexité ne peut pas être vérifiée de façon incrémentale.}
 \label{sec:incremental}
-
-L'exigence de connexité est globale et ne peut généralement pas être réduite à un test local entre nœuds consécutifs. En particulier, une solution valide peut contenir des sommets qui ne sont pas adjacents dans $G$ à leur prédécesseur immédiat mais qui sont connectés à l'ensemble sélectionné via d'autres sommets.
-
-Un audit empirique des solutions optimales ILP2 montre également que les préfixes intermédiaires ne fournissent généralement pas une base fiable pour imposer la condition de connexité finale. Par conséquent, rejeter simplement chaque candidat qui devient temporairement déconnecté dans $G$ peut éliminer des solutions valides.
-
-Notre décodeur utilise par conséquent $G$ uniquement comme signal de guidage souple pendant la génération. La contrainte de connexité finale est vérifiée exactement après qu'un chemin candidat orienté a été généré.
+La contrainte de connexité est globale. Deux sommets consécutifs d'un chemin réalisable ne sont pas forcément adjacents dans $G$, et un préfixe d'un chemin réalisable peut être non connexe dans $G$ alors que le chemin complet l'est (figure~\ref{fig:problem}). C'est le cas général : dans notre jeu de test, les 368 solutions ILP2 contiennent toutes deux sommets consécutifs non adjacents dans $G$, et 363 d'entre elles (98,6\,\%) ont un préfixe non connexe. Un décodeur qui rejetterait toute extension rendant le préfixe courant non connexe ne pourrait construire la plupart de ces solutions. Notre décodeur n'utilise donc $G$ que comme un signal souple pendant la construction du chemin, et vérifie la connexité de façon exacte une fois le chemin terminé.
 
 % ============================================================
-% METHODOLOGY
-% ============================================================
-
-\section{Méthodologie : One-to-one Skew-GRAM}
+\section{Méthode}
 \label{sec:method}
+% ============================================================
 
-Notre approche comporte deux composantes principales : un modèle d'embeddings entraîné sur des marches aléatoires orientées sur $D$, et un décodeur guidé qui combine les représentations apprises avec les informations structurelles de $D$ et $G$.
+Skew-GRAM comprend un encodeur, qui apprend les embeddings des sommets à partir de $D$ seulement, et un décodeur, qui construit des chemins à partir de $D$, des embeddings et de $G$ (figure~\ref{fig:pipeline}). La méthode s'exécute une fois par instance, en quatre phases. L'analogie qui la guide vient du TAL : un sommet joue le rôle d'un mot, une marche aléatoire orientée celui d'une phrase, et le voisinage d'un sommet dans une marche celui de son contexte.
 
-La procédure complète comporte quatre phases :
-
-\begin{enumerate}
-    \item génération de marches aléatoires et sous-échantillonnage des hubs ;
-    \item apprentissage d'embeddings de type Skip-Gram ;
-    \item décodage guidé conscient du DAG ;
-    \item extraction exacte du sous-chemin $(D,G)$-consistant.
-\end{enumerate}
-
-\subsection{Démarche générale : de l'instance au chemin, via Encoder et Decoder}
-\label{sec:demarche}
-
-L'analogie centrale est :
-
-\[
-\text{nœud} \leftrightarrow \text{mot},
-\qquad
-\text{marche aléatoire} \leftrightarrow \text{phrase},
-\qquad
-\text{contexte} \leftrightarrow \text{voisinage dans une marche}.
-\]
-
-Les marches aléatoires sont générées uniquement sur $D$, en suivant les arcs sortants. Cela garantit que le corpus appris reflète la structure directionnelle requise par le chemin final.
-
-Une fenêtre glissante est ensuite utilisée pour générer des paires centre-contexte. Les nœuds à haute fréquence sont sous-échantillonnés pour réduire l'influence des hubs.
-
-Les paires résultantes sont utilisées pour entraîner deux matrices d'embeddings en utilisant un échantillonnage négatif. Contrairement au Skip-Gram standard, les exemples négatifs sont sélectionnés structurellement parmi les non-successeurs dans $D$.
-
-Pendant le décodage, les embeddings appris sont combinés avec une anticipation exacte par programmation dynamique et un bonus de connexité souple $G$. Le décodeur est exécuté de manière répétée à partir de différents nœuds de départ, et le meilleur candidat est conservé.
-
-Enfin, parce que les signaux de guidage ne garantissent pas la connexité globale, une procédure exacte à fenêtre glissante Union-Find extrait le plus long sous-chemin contigu qui est connexe dans $G$.
-
-\begin{figure}[htbp]
+\begin{figure}[t]
 \centering
-\includegraphics[width=\textwidth]{11_demarche_diagram.png}
-\caption{
-Démarche générale de One-to-one Skew-GRAM. L'encodeur transforme l'instance en un problème d'apprentissage de type Skip-Gram, tandis que le décodeur utilise les embeddings appris et les informations spécifiques aux graphes pour générer et valider des chemins candidats.
-}
-\label{fig:demarche}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\textwidth]{10_pipeline_diagram.png}
-\caption{
-Pipeline One-to-one Skew-GRAM en quatre phases, exécuté une fois par instance.
-}
+\includegraphics[width=\textwidth]{fig2_pipeline.pdf}
+\caption{Les quatre phases de Skew-GRAM, exécutées une fois par instance. L'encodeur apprend les embeddings $\mathbf{V}_{in},\mathbf{V}_{out}$ à partir des marches sur $D$ ; le décodeur génère des chemins candidats (étape~A) et extrait de chacun un sous-chemin $(D,G)$-consistant (étape~B).}
 \label{fig:pipeline}
 \end{figure}
 
-% ============================================================
-% PHASE 1
-% ============================================================
+\subsubsection{Phase 1 : marches aléatoires et sous-échantillonnage des hubs.}
+Depuis chaque sommet ayant au moins un successeur, nous lançons plusieurs marches aléatoires qui suivent les arcs sortants de $D$ : depuis le sommet $u$, le sommet suivant est tiré uniformément parmi ses successeurs $N^+(u)$. Une marche s'arrête sur un puits ou à une longueur maximale. Comme dans word2vec, chaque occurrence d'un sommet $v$ de fréquence relative $f(v)$ est conservée avec la probabilité $\min\bigl(1,\sqrt{t/f(v)}+t/f(v)\bigr)$, $t=10^{-3}$, ce qui réduit le poids des hubs. Une fenêtre glissante sur chaque marche produit ensuite les couples (centre, contexte).
 
-\subsection{Phase 1 : Marches Aléatoires et Sous-échantillonnage des Hubs sur $D$}
-
-Les marches aléatoires sont générées en suivant uniquement les arcs sortants de $D$. Pour un nœud courant $u$, le nœud suivant est échantillonné parmi son ensemble de successeurs $N^+(u)$. La marche se termine lorsqu'un puits est atteint ou lorsque la longueur maximale de marche est atteinte.
-
-Les marches résultantes sont interprétées comme des phrases. Une fenêtre de contexte est ensuite appliquée pour générer des paires centre-contexte.
-
-Les nœuds à haute fréquence sont sous-pondérés en utilisant la stratégie de sous-échantillonnage standard de word2vec. Cela réduit la domination des hubs lors de l'apprentissage des représentations sans modifier le graphe utilisé par le décodeur.
-
-% ============================================================
-% PHASE 2
-% ============================================================
-
-\subsection{Phase 2 : Modèle d'Embeddings One-to-one Skew-GRAM}
-
-Deux matrices d'embeddings
-
-\[
-\mathbf{V}_{in},\mathbf{V}_{out}
-\in
-\mathbb{R}^{N\times d}
-\]
-
-sont entraînées, où $N=|V|$ et $d=32$.
-
-Pour un nœud centre $c$, un nœud contexte positif $o$, et $K$ échantillons négatifs $n_1,\ldots,n_K$, la perte d'échantillonnage négatif est
-
+\subsubsection{Phase 2 : embeddings Skip-Gram avec négatifs structurels.}
+Nous apprenons deux matrices $\mathbf{V}_{in},\mathbf{V}_{out}\in\mathbb{R}^{n\times d}$. Pour un sommet central $c$, un sommet de contexte $o$ et $K$ sommets négatifs $n_1,\ldots,n_K$, la perte est l'objectif classique d'échantillonnage négatif
 \begin{equation}
-\mathcal{L}(c,o,n_{1:K})
-=
--\log\sigma
-(\mathbf{v}_{in,c}^{\top}\mathbf{v}_{out,o})
--
-\sum_{k=1}^{K}
-\log\sigma
-(-\mathbf{v}_{in,c}^{\top}\mathbf{v}_{out,n_k}).
+\mathcal{L}(c,o,n_{1:K}) = -\log\sigma(\mathbf{v}_{in,c}^{\top}\mathbf{v}_{out,o}) - \sum_{k=1}^{K}\log\sigma(-\mathbf{v}_{in,c}^{\top}\mathbf{v}_{out,n_k}).
 \end{equation}
+La différence avec le Skip-Gram standard tient à la façon de tirer les négatifs : au lieu d'une distribution fondée sur les fréquences, les négatifs de $c$ sont tirés uniformément parmi les sommets qui ne sont pas des successeurs de $c$ dans $D$. Le signal négatif reflète ainsi l'orientation des arcs. Le décodeur utilise la similarité $\operatorname{sim}(u,v)=\mathbf{v}_{in,u}^{\top}\mathbf{v}_{out,v}$.
 
-La principale modification par rapport à l'objectif Skip-Gram standard est l'\textbf{échantillonnage négatif structurel}. Les nœuds négatifs sont échantillonnés parmi les nœuds qui ne sont pas des successeurs du nœud centre dans $D$.
-
-Cela rend le signal négatif sensible à la structure directionnelle du problème plutôt que de s'appuyer uniquement sur la fréquence.
-
-La similarité utilisée lors du décodage est
-
+\subsubsection{Phase 3 : décodage guidé (étape A).}
+Un décodeur guidé par la seule similarité tend à choisir des successeurs qui mènent rapidement à un puits. Nous calculons donc, pour chaque sommet $v$, le nombre $\mathrm{lf}(v)$ d'arcs d'un plus long chemin de $D$ partant de $v$ :
 \begin{equation}
-\operatorname{sim}(u,v)
-=
-\mathbf{v}_{in,u}^{\top}
-\mathbf{v}_{out,v}.
+\mathrm{lf}(v) = 0 \ \text{si } N^+(v)=\emptyset, \qquad \mathrm{lf}(v)=\max_{w\in N^+(v)}\bigl(1+\mathrm{lf}(w)\bigr) \ \text{sinon}.
 \end{equation}
-
-Le modèle est entraîné indépendamment pour chaque instance car les identifiants de nœuds n'ont pas de signification sémantique commune à travers les graphes générés indépendamment.
-
-% ============================================================
-% PHASE 3
-% ============================================================
-
-\subsection{Phase 3 : Décodage Guidé Conscient du DAG (Étape A)}
-
-Un décodeur basé uniquement sur la similarité d'embeddings peut sélectionner des successeurs localement attractifs qui mènent rapidement à des puits. Pour réduire ce comportement, nous calculons une anticipation exacte du plus long chemin sur $D$.
-
-Pour chaque nœud $v$, on définit
-
+Comme $D$ est acyclique, toutes les valeurs s'obtiennent en un seul parcours d'un ordre topologique inversé, en temps $O(|V|+|A|)$~\cite{bellman1958}. Lorsque le sommet courant est $u$ et que $v\in N^+(u)$ n'a pas encore été visité, le décodeur attribue à $v$ le score
 \begin{equation}
-\mathrm{lf}(v)
-=
-\begin{cases}
-0, & N^+(v)=\emptyset,\\
-\displaystyle
-\max_{w\in N^+(v)}
-\left(1+\mathrm{lf}(w)\right),
-& \text{sinon}.
-\end{cases}
+S(u,v) = \frac{\mathrm{lf}(v)}{\tau_{lf}} + \beta\,\frac{\operatorname{sim}(u,v)}{\tau} + \log(\gamma)\,\mathbb{I}_G(v),
 \end{equation}
+où $\mathbb{I}_G(v)=1$ si $v$ est adjacent dans $G$ à un sommet du chemin en construction, et $0$ sinon. Le sommet suivant est tiré avec la probabilité $P(v\mid u)\propto\exp S(u,v)$. Les trois termes mesurent respectivement le potentiel de chemin restant dans $D$, la compatibilité apprise entre $u$ et $v$, et une préférence pour les sommets reliés dans $G$ au chemin déjà construit. Les sommets visités sont masqués. Le décodeur répète $W$ fois ces marches depuis des sommets de départ tirés uniformément.
 
-Puisque $D$ est un DAG, toutes les valeurs $\mathrm{lf}(v)$ sont calculées en une seule passe topologique inversée en
-
-\[
-O(|V|+|A|).
-\]
-
-À chaque étape de décodage, soit $u$ le nœud courant et $v\in N^+(u)$ un successeur candidat. Nous définissons
-
-\begin{equation}
-S(u,v)
-=
-\frac{\mathrm{lf}(v)}{\tau_{lf}}
-+
-\beta
-\frac{\operatorname{sim}(u,v)}{\tau}
-+
-\log(\gamma)
-\mathbb{I}
-[v \text{ est adjacent dans }G\text{ à un nœud sélectionné}].
-\end{equation}
-
-Le nœud suivant est échantillonné selon
-
-\begin{equation}
-P(v\mid u)
-=
-\frac{\exp(S(u,v))}
-{\sum_{w\in N^+(u)}\exp(S(u,w))}.
-\end{equation}
-
-Les trois termes représentent respectivement :
-
-\begin{enumerate}
-    \item le potentiel de chemin orienté restant dans $D$ ;
-    \item la compatibilité d'embeddings apprise ;
-    \item une préférence souple pour les candidats connectés dans $G$ au chemin construit jusqu'à présent.
-\end{enumerate}
-
-Les nœuds déjà visités sont masqués pour préserver la contrainte one-to-one. Le décodeur est répété 30 000 fois par instance en utilisant différents points de départ, et le meilleur chemin extrait final est conservé.
+\subsubsection{Phase 4 : extraction exacte (étape B).}
+Un chemin candidat $P=(p_1,\ldots,p_L)$ issu de la phase~3 est un chemin de $D$, mais il peut ne pas être connexe dans $G$. Tout sous-chemin contigu de $P$ reste un chemin de $D$ ; il suffit donc de trouver le plus long intervalle $[i,j]$ tel que $G[\{p_i,\ldots,p_j\}]$ soit connexe. Pour chaque début $i$, nous étendons la fenêtre d'un sommet à la fois et maintenons les composantes de la fenêtre dans une structure Union-Find~\cite{tarjan1975}, en comparant chaque nouveau sommet aux sommets déjà présents dans la fenêtre. Le coût est en $O(L^3\alpha(L))$ pour un chemin de longueur $L$, où $\alpha$ est la réciproque de la fonction d'Ackermann. L'extraction n'est lancée que lorsque le candidat brut est plus long que le meilleur sous-chemin trouvé jusque-là, et $L$ est borné par le plus long chemin de $D$ (au plus 100 sommets dans nos instances). Le meilleur sous-chemin extrait sur les $W$ marches est renvoyé ; il est $(D,G)$-consistant par construction.
 
 % ============================================================
-% PHASE 4
+\section{Expériences}
 % ============================================================
 
-\subsection{Phase 4 : Extraction Exacte du Sous-chemin $(D,G)$-Consistant (Étape B)}
+\subsection{Protocole expérimental}
 
-Le candidat généré à la Phase 3 est garanti d'être un chemin orienté dans $D$, mais il n'est pas nécessairement connexe dans $G$.
+\subsubsection{Instances synthétiques.}
+Le jeu de test principal contient 300 instances de $n=100$ sommets et 75 instances de $n=200$ sommets, chacune fournie avec la solution d'ILP2 (chemin et temps de calcul). $D$ est construit en tirant un ordre topologique aléatoire puis en ajoutant chaque arc « vers l'avant » avec la probabilité $p$ ($p=0{,}08$ pour $n=100$, $p=0{,}05$ pour $n=200$), et $G$ est un graphe d'Erd\H{o}s--Rényi $G(n,p)$ indépendant~\cite{erdos1959}. ILP2 ne renvoie aucune solution pour 2 instances de 100 sommets et 5 instances de 200 sommets ; elles sont exclues de toutes les comparaisons avec ILP2, ce qui laisse 298 et 70 instances. ILP2 est un modèle exact, mais les solutions fournies ne sont pas toutes optimales : sur l'instance 200\_68, Skew-GRAM trouve un chemin réalisable de 10 sommets, que nous avons vérifié de façon indépendante, alors que le fichier ILP2 en indique 7. Nous utilisons donc les solutions ILP2 comme longueurs de référence, et nous disons qu'une exécution atteint ILP2 lorsque son chemin est au moins aussi long. Pour étudier le passage à l'échelle, nous utilisons aussi 10 instances de $n=500$ sommets et 5 instances de $n=1000$ sommets, construites de la même manière avec $p=0{,}05$ (nous avons généré nous-mêmes les instances de 1000 sommets) ; aucune solution ILP2 n'est disponible pour elles.
 
-Pour un chemin candidat
+\subsubsection{Réseaux métaboliques réels.}
+Nous utilisons 25 voies métaboliques de KEGG~\cite{kanehisa2000}, issues de sept bactéries (codes KEGG aae, bsu, eco, mtv, pae, sau et syn). Dans chaque instance, $D$ est le graphe métabolique d'une voie et $G$ un graphe de proximité génomique ou fonctionnelle sur les mêmes sommets. L'ensemble contient 19 voies acycliques (au plus trois par organisme, avec 10 à 80 entités listées) et 6 voies dont les seuls cycles sont des réactions réversibles (2-cycles) ; les sommets sans aucun arc ni arête sont écartés au chargement, ce qui laisse de 4 à 38 sommets. Chaque réaction réversible est orientée de l'identifiant de sommet le plus petit vers le plus grand afin que $D$ soit acyclique ; il s'agit d'une simplification de modélisation. Ces instances n'ont pas de solution ILP2, mais elles sont petites : nous calculons donc leur optimum exact en énumérant les chemins de $D$ avec deux coupes exactes. Les sommets d'un chemin réalisable appartiennent à une même composante connexe $C$ de $G$, si bien que seuls les chemins de $D[C]$ sont énumérés, et un chemin qui se termine en $u$ ne peut gagner plus de $\mathrm{lf}(u)$ sommets.
 
-\[
-P=(p_1,\ldots,p_L),
-\]
+\subsubsection{Déroulement.}
+Le tableau~\ref{tab:hyper} donne les hyperparamètres, identiques pour toutes les instances. L'entraînement utilise Adam~\cite{kingma2014}. Chaque instance est résolue avec cinq graines (42 à 46) ; la graine est réinitialisée au début de chaque instance, si bien qu'un résultat ne dépend pas de l'ordre de traitement des instances. Nous vérifions que chaque chemin renvoyé est $(D,G)$-consistant. Skew-GRAM tourne sur un processeur d'ordinateur portable Intel Core i5-1135G7 (4 c\oe{}urs), avec quatre instances résolues en parallèle sur un fil d'exécution chacune ; le portable servait aussi à d'autres tâches pendant les calculs, si bien que les temps comportent un bruit lié à la charge. Les temps d'ILP2 proviennent des fichiers du jeu de données et ont été mesurés sur une autre machine : les accélérations sont donc seulement indicatives.
 
-nous recherchons donc le plus long intervalle contigu $[i,j]$ tel que
-
-\[
-G[\{p_i,\ldots,p_j\}]
-\]
-
-soit connexe.
-
-Un sous-chemin contigu d'un chemin valide dans $D$ reste un chemin valide dans $D$. Ainsi, cette dernière étape n'a besoin d'imposer que la condition de connexité $G$.
-
-Nous utilisons une procédure de fenêtre glissante combinée à une structure Union-Find incrémentale \cite{tarjan1975}. Pour chaque position de départ, la fenêtre est étendue d'un nœud à la fois, et chaque nouveau nœud est comparé à tous les nœuds déjà présents dans la fenêtre. Pour un chemin candidat de longueur $L$, la complexité dans le pire des cas est donc
-
-\[
-O(L^3\alpha(L)),
-\]
-
-où $\alpha$ est la fonction inverse d'Ackermann. Ce coût est négligeable en pratique, car un chemin candidat ne peut pas être plus long que le plus long chemin de $D$ ($L \le 24$ nœuds sur les instances évaluées).
-
-Cette étape finale est exacte : chaque chemin retourné par l'algorithme satisfait la définition d'un chemin $(D,G)$-consistant.
-
-% ============================================================
-% RESULTS
-% ============================================================
-
-\section{Résultats et Discussion}
-
-\subsection{Configuration Expérimentale}
-
-Nous évaluons la méthode proposée sur 200 instances synthétiques d'Erdős--Rényi \cite{erdos1959}, contenant chacune 100 nœuds. Un optimum ILP2 est disponible pour 197 des 200 instances ; les comparaisons avec ILP2 portent donc sur ces 197 instances.
-
-La comparaison inclut :
-
-\begin{itemize}
-    \item GNN DL2 \cite{sidi_dl} ;
-    \item ILP2 \cite{sidi} ;
-    \item One-to-one Skew-GRAM.
-\end{itemize}
-
-La dimension des embeddings est 32, avec 40 marches par nœud de départ, une longueur de marche maximale de 30, une fenêtre de contexte de 3, et cinq échantillons négatifs structurels par paire positive. Le décodeur effectue 30 000 marches Monte-Carlo par instance.
-
-Toutes les expériences utilisent la graine aléatoire fixe \texttt{SEED=42}, ré-initialisée au début de chaque instance, de sorte que le résultat obtenu sur une instance ne dépend pas de l'ordre de traitement des instances. Chaque chemin retourné est vérifié comme étant $(D,G)$-consistant. La configuration complète des hyperparamètres est fournie en Annexe~\ref{sec:hyperparams}.
-
-Les temps d'ILP2 proviennent des fichiers de solution fournis avec le jeu de données et ont été mesurés sur une autre machine ; les temps de One-to-one Skew-GRAM ont été mesurés sur une machine partagée à 8 cœurs CPU. Les accélérations sont donc indicatives.
-
-% ============================================================
-% TABLE 1
-% ============================================================
-
-\begin{table}[htbp]
+\begin{table}[t]
 \centering
-\caption{
-Comparaison des méthodes sur les 197 instances synthétiques de 100 nœuds pour lesquelles un optimum ILP2 est disponible. Accélération : médiane du rapport des temps par instance.
-}
+\caption{Hyperparamètres, identiques pour toutes les instances.}
+\label{tab:hyper}
+\begin{tabular}{@{}llr@{\qquad}llr@{}}
+\toprule
+\multicolumn{3}{@{}l}{Encodeur (phases 1--2)} & \multicolumn{3}{l@{}}{Décodeur (phases 3--4)} \\
+\midrule
+Marches par sommet & & 40 & Marches de décodage & $W$ & 30\,000 \\
+Longueur max.\ d'une marche & & 30 & Température d'anticipation & $\tau_{lf}$ & 1,5 \\
+Fenêtre de contexte & & 3 & Température de similarité & $\tau$ & 0,5 \\
+Dimension des embeddings & $d$ & 32 & Poids de la similarité & $\beta$ & 0,3 \\
+Négatifs par couple & $K$ & 5 & Bonus de connexité $G$ & $\gamma$ & 6,0 \\
+Époques / taux d'appr. & & 8 / 0,01 & & & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Comparaison avec ILP2}
+\label{sec:ilp2}
+
+Le tableau~\ref{tab:results} résume les résultats. Les valeurs après $\pm$ sont les écarts-types, entre les cinq graines, de la moyenne correspondante, sauf pour les temps de calcul, où il s'agit de l'écart-type sur l'ensemble des exécutions.
+
+\begin{table}[t]
+\centering
+\caption{Skew-GRAM comparé à ILP2 sur les instances synthétiques disposant d'une solution ILP2 (cinq graines par instance). Exécutions atteignant ILP2 : exécutions dont le chemin est au moins aussi long que la solution ILP2. Accélération : médiane, sur les instances, du rapport entre le temps d'ILP2 et le temps moyen de Skew-GRAM.}
 \label{tab:results}
-
-\begin{tabular}{lrrr}
-\toprule
-\textbf{Méthode}
-&
-\textbf{Longueur Moyenne}
-&
-\textbf{Temps Moyen}
-&
-\textbf{Accélération}
-\\
-\midrule
-
-GNN DL2 \cite{sidi_dl}
-& $\approx 1.2$
-& N/A
-& --
-
-\\
-
-ILP2 \cite{sidi}
-& $10.02$
-& $29.9$ s
-& référence
-
-\\
-
-\textbf{One-to-one Skew-GRAM}
-& $\mathbf{9.59}$
-& $\mathbf{5.4}$ s
-& $\mathbf{\sim5\times}$
-
-\\
-
-\bottomrule
-\end{tabular}
-
+\input{tables/tab_main.tex}
 \end{table}
 
-La méthode proposée obtient une longueur de chemin moyenne de 9,59 nœuds, comparée à 10,02 nœuds pour ILP2. La différence relative moyenne correspondante est d'environ
+À 100 sommets, les chemins trouvés par Skew-GRAM comptent 9,47 sommets en moyenne, contre 9,93 pour ILP2, soit un écart moyen de $-4{,}4$\,\%. La méthode atteint la longueur ILP2 dans 71,3\,\% des exécutions et en reste à au plus un sommet dans 90,3\,\%. Une exécution dure 6,9\,s en moyenne, contre 29,1\,s pour ILP2. À 200 sommets, le problème est plus difficile pour l'heuristique : l'écart moyen passe à $-17{,}2$\,\% et la longueur ILP2 est atteinte dans 30,0\,\% des exécutions. ILP2 ralentit beaucoup plus, de 29,1\,s à 251,8\,s en moyenne, alors que Skew-GRAM passe de 6,9\,s à 11,3\,s : l'accélération médiane passe ainsi de 4,0$\times$ à 21,2$\times$ (figure~\ref{fig:results}b). À 100 sommets, aucune exécution ne renvoie un chemin plus long que celui d'ILP2 ; à 200 sommets, c'est le cas de quatre exécutions sur cinq pour l'instance 200\_68 (tableau~\ref{tab:instances}). Pour mémoire, DL2~\cite{sidi_dl} trouvait des chemins de 1,2 sommet en moyenne sur des instances de 50 sommets ; nous ne l'avons pas relancé, ce chiffre n'est donc qu'indicatif.
 
-\[
-\frac{9.59-10.02}{10.02}
-\approx -4.3\%.
-\]
-
-One-to-one Skew-GRAM atteint l'optimum ILP2 sur 146 des 197 instances (74\,\%) et se trouve à au plus un nœud de celui-ci sur 181 instances (92\,\%). Il ne retourne jamais un chemin plus long que l'optimum ILP2, ce qui est cohérent avec l'exactitude d'ILP2.
-
-Le temps d'exécution moyen diminue de 29,9 secondes pour ILP2 à 5,4 secondes pour One-to-one Skew-GRAM. L'accélération médiane par instance est d'environ 5,2$\times$, et la méthode proposée est plus rapide qu'ILP2 sur 190 des 197 instances.
-
-Les résultats indiquent donc un compromis qualité/temps favorable : l'heuristique proposée ne retrouve pas toujours l'optimum exact, mais elle l'atteint sur la plupart des instances et obtient des chemins considérablement plus longs que l'approche GNN précédente tout en nécessitant beaucoup moins de calculs qu'ILP2.
-
-% ============================================================
-% TABLE 2
-% ============================================================
-
-\begin{table}[htbp]
+\begin{figure}[t]
 \centering
-\caption{
-Comparaison instance par instance entre One-to-one Skew-GRAM et ILP2 sur dix instances représentatives de 100 nœuds.
-}
-\label{tab:per-instance}
+\includegraphics[width=\textwidth]{fig3_results.pdf}
+\caption{(a) Nombre de sommets manquant au chemin de Skew-GRAM par rapport à la solution ILP2, sur l'ensemble des exécutions (0 : longueur ILP2 atteinte ou dépassée). (b) Temps de calcul par instance (Skew-GRAM : moyenne sur les cinq graines) ; les points sous la droite en pointillés sont plus rapides avec Skew-GRAM.}
+\label{fig:results}
+\end{figure}
 
-\begin{tabular}{lrrrrr}
-\toprule
-\textbf{Instance}
-&
-\textbf{ILP2}
-&
-\textbf{Skew-GRAM}
-&
-\textbf{Écart}
-&
-\textbf{Temps ILP2}
-&
-\textbf{Temps Skew-GRAM}
-\\
-&
-(nœuds)
-&
-(nœuds)
-&
-(\%)
-&
-(s)
-&
-(s)
-\\
-\midrule
+Le tableau~\ref{tab:instances} détaille dix instances, choisies aux 0\textsuperscript{e}, 50\textsuperscript{e}, 80\textsuperscript{e}, 95\textsuperscript{e} et 100\textsuperscript{e} centiles de l'écart moyen pour chaque taille. À 100 sommets, la plupart des instances atteignent la longueur ILP2, et l'écart se concentre sur quelques instances pour lesquelles les marches guidées atteignent rarement la région de $D$ qui contient le meilleur chemin. À 200 sommets, les écarts sont plus grands (jusqu'à 8 sommets pour une exécution), tandis que sur l'instance 200\_68 Skew-GRAM dépasse la solution ILP2 dans quatre exécutions sur cinq.
 
-100\_121 & 6  & 6  & $0.0\%$   & 19.59 & 3.69 \\
-100\_402 & 11 & 11 & $0.0\%$   & 13.16 & 3.84 \\
-100\_190 & 11 & 11 & $0.0\%$   & 25.44 & 5.08 \\
-100\_14  & 12 & 12 & $0.0\%$   & 8.51  & 5.05 \\
-100\_320 & 12 & 12 & $0.0\%$   & 33.91 & 5.41 \\
-100\_66  & 16 & 16 & $0.0\%$   & 9.98  & 6.11 \\
-100\_128 & 13 & 11 & $-15.4\%$ & 18.44 & 7.32 \\
-100\_197 & 11 & 9  & $-18.2\%$ & 19.73 & 4.48 \\
-100\_388 & 15 & 12 & $-20.0\%$ & 58.18 & 5.46 \\
-100\_527 & 11 & 4  & $-63.6\%$ & 15.83 & 7.51 \\
-
-\bottomrule
-\end{tabular}
-
+\begin{table}[t]
+\centering
+\caption{Résultats par instance pour dix instances, choisies aux 0\textsuperscript{e}, 50\textsuperscript{e}, 80\textsuperscript{e}, 95\textsuperscript{e} et 100\textsuperscript{e} centiles de l'écart moyen pour chaque taille (de la meilleure à la moins bonne). Skew-GRAM : moyenne $\pm$ écart-type sur les cinq graines. Un écart positif signifie un chemin plus long que la solution ILP2.}
+\label{tab:instances}
+\input{tables/tab_instances.tex}
 \end{table}
 
-Le Tableau~\ref{tab:per-instance} illustre la variabilité de l'heuristique selon les instances. One-to-one Skew-GRAM correspond exactement à ILP2 sur six de ces dix instances, dont 100\_66, dont l'optimum contient 16 nœuds. Sur les 197 instances avec un optimum connu, il atteint l'optimum ILP2 sur 146 instances.
+\subsubsection{Stabilité selon la graine.}
+Le décodeur est stochastique ; nous mesurons donc la variation des résultats selon la graine. La longueur moyenne sur l'ensemble des instances est très stable (écart-type de 0,02 sommet pour $n=100$ et de 0,12 pour $n=200$). Au niveau de chaque instance, la longueur renvoyée varie avec la graine de 0,43 sommet en moyenne (écart-type) pour $n=100$ et de 0,93 pour $n=200$ ; les cinq exécutions renvoient la même longueur pour 48\,\% et 23\,\% des instances. Le temps de calcul d'une instance varie lui aussi d'une exécution à l'autre (écart-type de 2,4\,s en moyenne pour $n=100$), surtout parce que la machine servait à d'autres tâches : la quantité de calcul est la même à chaque exécution, puisque le nombre de marches est fixé. Garder la meilleure des cinq exécutions porterait le nombre d'instances où la longueur ILP2 est atteinte à 273 sur 298 et 42 sur 70, pour un coût cinq fois plus élevé.
 
-Le temps d'exécution reste plus faible pour toutes les instances présentées. La différence est particulièrement visible pour des instances telles que 100\_388, où ILP2 nécessite 58,18 secondes alors que la méthode proposée nécessite 5,46 secondes.
+\subsection{Réseaux métaboliques réels}
+\label{sec:bio}
 
-La variabilité de la qualité de la solution est attendue car le décodeur repose sur un échantillonnage stochastique. Certaines instances contiennent des chemins prometteurs qui sont plus faciles à atteindre grâce au guidage appris, tandis que d'autres nécessitent l'exploration de branches moins probables.
+Le tableau~\ref{tab:bio} présente les résultats sur les 25 voies KEGG. Skew-GRAM trouve l'optimum exact sur chaque voie et avec chaque graine. Ces instances sont bien plus faciles que les instances synthétiques : elles ont au plus 38 sommets et $G$ est très creux (8,7 arêtes en moyenne), si bien que l'optimum est court (3,4 sommets en moyenne) et se réduit à un seul sommet pour 7 voies. L'énumération exacte avec la coupe par composantes prend moins de 2\,ms par voie, bien moins que les 2,9\,s de Skew-GRAM. Sur des réseaux aussi petits, une méthode exacte est le meilleur choix ; l'expérience montre que la méthode s'applique telle quelle à des données réelles et renvoie des solutions correctes, mais elle ne démontre pas d'avantage en vitesse. Des réseaux réels plus grands, comme des réseaux métaboliques à l'échelle du génome couplés à des données d'interactions protéiques, sont nécessaires pour évaluer la méthode là où les solveurs exacts peinent.
 
-% ============================================================
-% FIGURES
-% ============================================================
-
-\begin{figure}[htbp]
+\begin{table}[t]
 \centering
-\includegraphics[width=0.95\textwidth]{08_graph_topology_paths.png}
-\caption{
-Exemple du processus de décodage en deux étapes. L'Étape A génère un chemin orienté dans $D$, tandis que l'Étape B extrait le plus long sous-chemin contigu qui est connexe dans $G$.
-}
-\label{fig:decode-example}
+\caption{Résultats sur 25 voies métaboliques KEGG (cinq graines chacune). LP$(D)$ : nombre de sommets d'un plus long chemin de $D$. Optimum : optimum exact par énumération. Atteint : voies sur lesquelles Skew-GRAM atteint l'optimum (moyenne sur les graines). Les longueurs sont des moyennes.}
+\label{tab:bio}
+\input{tables/tab_bio.tex}
+\end{table}
+
+\subsection{Ablation de l'anticipation}
+
+Pour mesurer le rôle de l'anticipation, nous retirons le terme $\mathrm{lf}(v)/\tau_{lf}$ de $S(u,v)$ en gardant tout le reste inchangé (graine 42). À 100 sommets, la longueur moyenne passe de 9,49 à 7,29 sommets ($-23{,}2$\,\%), les chemins raccourcissent sur 229 des 298 instances, et la longueur ILP2 n'est plus atteinte que sur 47 instances au lieu de 216. À 200 sommets, la longueur moyenne passe de 7,87 à 6,40 ($-18{,}7$\,\%) et la longueur ILP2 n'est atteinte que sur 5 instances au lieu de 24. La similarité des embeddings ne dit pas au décodeur si un successeur mène à une longue branche ou à un puits ; l'anticipation fournit cette information de façon exacte, pour un coût linéaire.
+
+\subsection{Passage à l'échelle}
+\label{sec:scaling}
+
+Le tableau~\ref{tab:scaling} montre comment le temps de calcul croît avec $n$ et où il est dépensé. La génération des marches est négligeable. L'entraînement croît avec la taille du corpus de marches, qui augmente avec $n$ et avec la longueur des marches. Le décodage représente la plus grande part du temps à toutes les tailles, de 91\,\% du temps pour $n=100$ à 57\,\% pour $n=1000$ : son coût est proportionnel au nombre de marches $W$, à la longueur de chaque marche, bornée par le plus long chemin de $D$, et au nombre de successeurs évalués à chaque pas, et le bonus $G$ compare chaque candidat aux sommets déjà présents dans le chemin. Avec $n=1000$ (environ 25\,000 arcs), une exécution prend 143\,s en moyenne. Aucune solution ILP2 n'est disponible pour ces tailles, mais le nombre de sommets d'un plus long chemin de $D$, LP$(D)$, est une borne supérieure de l'optimum : les chemins trouvés comptent 33,5 et 72,8 sommets en moyenne pour $n=500$ et $n=1000$, contre 46,6 et 94,4 pour cette borne.
+
+\begin{table}[t]
+\centering
+\caption{Temps de calcul par phase et longueur des chemins selon $n$ (toutes les instances, cinq graines). $|A|$ et LP$(D)$ (sommets d'un plus long chemin de $D$) sont des moyennes sur les instances ; Longueur : moyenne $\pm$ écart-type, entre graines, de la moyenne ; Total : moyenne $\pm$ écart-type sur les exécutions.}
+\label{tab:scaling}
+\input{tables/tab_scaling.tex}
+\end{table}
+
+Les 30\,000 marches représentent le coût principal ; nous examinons donc comment la qualité dépend de $W$. Comme les $k$ premières marches d'une exécution utilisent exactement les mêmes nombres aléatoires qu'une exécution avec un budget $W=k$, la meilleure longueur après chaque bloc de 500 marches donne, sans calcul supplémentaire, le résultat de chaque budget plus petit (figure~\ref{fig:budget}). La qualité augmente encore à $W=30\,000$, pour toutes les tailles. Avec $W=3\,000$, les chemins conservent entre 79\,\% ($n=500$) et 92\,\% ($n=1000$) de leur longueur finale, et la part des exécutions qui atteignent la longueur ILP2 tombe de 71,3\,\% à 34,4\,\% pour $n=100$. Réduire $W$ n'est donc pas une économie gratuite. Trois pistes découlent de la structure du décodeur. Les marches sont indépendantes et peuvent s'exécuter en parallèle. Le bonus $G$ peut être maintenu de façon incrémentale en conservant l'ensemble des voisins dans $G$ du chemin courant, ce qui le rend en $O(1)$ par candidat au lieu de $O(L)$. Enfin, le budget pourrait s'adapter à l'instance, par exemple en s'arrêtant lorsque la meilleure longueur n'a pas progressé depuis un nombre donné de marches. Nous laissons ces améliorations d'implémentation à des travaux futurs.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{fig4_budget.pdf}
+\caption{Effet du nombre de marches de décodage $W$. (a) Longueur moyenne des chemins, relative à la longueur obtenue avec $W=30\,000$. (b) Part des exécutions qui atteignent la longueur ILP2 (instances disposant d'une solution ILP2).}
+\label{fig:budget}
 \end{figure}
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=0.95\textwidth]{05_evaluation_comparison.png}
-\caption{
-Comparaison de la longueur de chemin par instance entre One-to-one Skew-GRAM et ILP2, ainsi que le compromis qualité-temps sur l'ensemble des instances évaluées.
-}
-\label{fig:comparison}
-\end{figure}
+\subsection{Discussion et limites}
+
+Les résultats confirment l'intérêt de combiner des composants appris et exacts. L'anticipation fournit au décodeur une information exacte, peu coûteuse à calculer sur un DAG, au lieu de demander au modèle d'embeddings de l'apprendre. $G$ sert au guidage et à la vérification finale plutôt qu'à l'objectif d'apprentissage des embeddings, ce qui recentre l'apprentissage sur l'ordre du chemin, tandis que l'étape d'extraction garantit la réalisabilité.
+
+La méthode a des limites claires. C'est une heuristique, qui ne doit pas remplacer ILP2 lorsque l'optimalité doit être garantie. Son écart à ILP2 croît avec $n$ à budget fixé, et sur de petites voies réelles l'énumération exacte est à la fois exacte et plus rapide. Les embeddings sont entraînés pour chaque instance, ce qui ajoute un coût d'entraînement qu'un modèle entraîné sur plusieurs instances éviterait. Enfin, notre évaluation sur données réelles ne couvre que de petites voies, et l'orientation des réactions réversibles est une simplification.
 
 % ============================================================
-% ABLATION
-% ============================================================
-
-\subsection{Ablation de l'Anticipation DAG}
-
-Nous évaluons également l'importance de l'anticipation DAG exacte en la retirant du décodeur, c'est-à-dire en supprimant le terme $\mathrm{lf}(v)/\tau_{lf}$ de $S(u,v)$ tout en conservant la similarité d'embeddings, le bonus de connexité dans $G$ et les mêmes graines aléatoires.
-
-Sur les 197 instances avec un optimum connu, le décodage sans anticipation produit une longueur de chemin moyenne de 7,19 nœuds, comparée à 9,59 nœuds pour l'approche complète.
-
-Cela représente une réduction d'environ 25,0\%. Le chemin devient plus court sur 156 des 197 instances et plus long sur une seule, et l'optimum ILP2 n'est plus atteint que sur 26 instances au lieu de 146.
-
-Ce résultat confirme que la similarité d'embeddings seule ne capture pas adéquatement le potentiel de chemin restant dans le DAG. Un nœud candidat peut être localement compatible avec le nœud courant tout en menant à une branche courte ou à un puits.
-
-L'anticipation par programmation dynamique fournit cette information explicitement et aide donc le décodeur à éviter les culs-de-sac prématurés.
-
-% ============================================================
-% DISCUSSION
-% ============================================================
-
-\subsection{Discussion}
-
-Les résultats soulignent l'avantage de combiner des composantes apprises et algorithmiques.
-
-Premièrement, la grande différence entre DL2 et One-to-one Skew-GRAM suggère que le décodage neuronal purement séquentiel a des difficultés à maintenir des chemins suffisamment longs sous les contraintes couplées de $D$ et $G$.
-
-Deuxièmement, l'anticipation DAG fournit une information exacte qui peut être calculée efficacement car $D$ est acyclique. Plutôt que d'exiger du modèle d'embeddings qu'il apprenne cette propriété implicitement, nous la fournissons directement au décodeur.
-
-Troisièmement, $G$ est délibérément utilisé comme structure de guidage et de validation plutôt que d'être incorporé dans l'objectif de l'embedding. Cela permet de garder le problème d'apprentissage de représentation concentré sur la structure dirigée qui définit l'ordre de chemin valide, tandis que la contrainte de connexité globale est gérée explicitement pendant le décodage et l'extraction.
-
-La méthode proposée ne doit donc pas être interprétée comme un remplacement d'ILP2 lorsque l'optimalité garantie est requise. Son principal avantage est le compromis qualité-temps : elle obtient des chemins considérablement plus longs que l'approche GNN précédente et atteint l'optimum exact sur la plupart des instances, tout en étant environ cinq fois plus rapide que le solveur exact sur les instances évaluées.
-
-% ============================================================
-% CONCLUSION
-% ============================================================
-
 \section{Conclusion}
-
-Nous avons présenté \textbf{One-to-one SkewGRAM}, une approche hybride pour le problème NP-difficile One-to-one SkewGRAM. La méthode combine des embeddings de nœuds de type Skip-Gram appris à partir de marches aléatoires orientées sur $D$ avec une anticipation DAG exacte, une stratégie de décodage guidée par la connexité, et une étape finale d'extraction exacte basée sur Union-Find.
-
-Les résultats expérimentaux sur 200 instances synthétiques de 100 nœuds montrent que l'approche proposée offre un solide compromis qualité/temps. Elle obtient une longueur de chemin moyenne de 9,59 nœuds en 5,4 secondes, contre 10,02 nœuds en 29,9 secondes pour le solveur exact ILP2. Elle atteint l'optimum ILP2 sur 146 des 197 instances pour lesquelles un optimum est disponible, tout en nécessitant beaucoup moins de calcul. L'étude d'ablation confirme également l'importance de l'anticipation DAG pour maintenir des chemins candidats plus longs.
-
-Ces résultats suggèrent que la combinaison de représentations de nœuds apprises avec des algorithmes de graphes spécifiques au problème peut constituer une alternative efficace à la fois à l'optimisation purement exacte et au décodage neuronal de bout en bout pour les problèmes combinatoires sur graphes couplés.
-
-
-% ============================================================
-% APPENDIX
 % ============================================================
 
-\appendix
-
-\section{Hyperparamètres}
-\label{sec:hyperparams}
-
-Le Tableau~\ref{tab:hyperparams} donne les hyperparamètres utilisés pour obtenir les résultats rapportés.
-
-\begin{table}[htbp]
-\centering
-\caption{
-Hyperparamètres utilisés par l'encodeur et le décodeur.
-}
-\label{tab:hyperparams}
-
-\begin{tabularx}{\textwidth}{Xccp{0.32\textwidth}}
-\toprule
-\textbf{Paramètre}
-&
-\textbf{Symbole}
-&
-\textbf{Valeur}
-&
-\textbf{Rôle}
-\\
-\midrule
-
-\multicolumn{4}{l}{\emph{Encoder -- Phases 1--2}}
-\\
-
-Marches par sommet de départ
-& --
-& $40$
-& Taille du corpus de marches sur $D$
-\\
-
-Longueur maximale d'une marche
-& --
-& $30$
-& Arrêt anticipé sur un puits
-\\
-
-Fenêtre de contexte
-& --
-& $3$
-& Génération de paires centre-contexte
-\\
-
-Dimension des embeddings
-& $d$
-& $32$
-& Taille des embeddings de nœuds
-\\
-
-Époques d'entraînement
-& --
-& $8$
-& Optimiseur Adam \cite{kingma2014}
-\\
-
-Négatifs structurels par paire
-& $K$
-& $5$
-& Échantillons négatifs
-\\
-
-Taux d'apprentissage
-& --
-& $0.01$
-& Taux d'apprentissage Adam \cite{kingma2014}
-\\
-
-\addlinespace
-
-\multicolumn{4}{l}{\emph{Decoder -- Phases 3--4}}
-\\
-
-Marches Monte-Carlo au décodage
-& --
-& $30\,000$
-& Nombre de chemins candidats
-\\
-
-Temp. du signal d'embedding
-& $\tau$
-& $0.5$
-& Température du score d'embedding
-\\
-
-Poids du signal d'embedding
-& $\beta$
-& $0.3$
-& Poids de la similarité d'embeddings
-\\
-
-Bonus de connexité à $G$
-& $\gamma$
-& $6.0$
-& Préférence de connexité
-\\
-
-Temp. de l'anticipation DAG
-& $\tau_{lf}$
-& $1.5$
-& Température du score d'anticipation
-\\
-
-\bottomrule
-\end{tabularx}
-
-\end{table}
+Nous avons présenté Skew-GRAM, qui applique le modèle Skip-Gram du TAL au problème One-to-one SkewGRAM issu de la biologie : trouver un plus long chemin dans un DAG dont les sommets sont connexes dans un second graphe. Des embeddings appris à partir de marches aléatoires orientées guident un décodeur Monte-Carlo, avec une anticipation exacte sur le DAG et un bonus de connexité, et une étape exacte d'Union-Find rend tout chemin renvoyé réalisable. Sur 368 instances synthétiques disposant d'une solution ILP2, la méthode atteint la longueur ILP2 dans la plupart des exécutions à 100 sommets et s'exécute bien plus vite qu'ILP2, avec une accélération qui croît avec la taille des graphes ; ses résultats moyens varient peu d'une graine à l'autre, elle trouve l'optimum exact sur 25 voies métaboliques réelles, et elle passe à l'échelle de graphes de 1000 sommets. Nos travaux futurs porteront sur des réseaux réels plus grands, un décodeur plus rapide (marches en parallèle, bonus $G$ incrémental, budget adaptatif) et des embeddings entraînés sur plusieurs instances.
 
 % ============================================================
-% REFERENCES
+% RÉFÉRENCES (style splncs04)
 % ============================================================
 
-\clearpage
 \begin{thebibliography}{10}
 
-\bibitem{sidi}
-Ahmed Sidi, M. L., Babou, H. M., Dhib, C., Neron, E., Soukhal, A., Nanne, M. F.:
-Constraint programming approaches for finding conserved metabolic and genomic patterns.
-Computers \& Operations Research, 183:107166 (2025)
+\bibitem{sidi2022}
+Ahmed Sidi, M.L., Bocquillon, R., Mohamed Babou, H., Dhib, C., Néron, E., Soukhal, A., Nanne, M.F.: Improved approaches to solve the one-to-one SkewGraM problem. Computers \& Operations Research \textbf{138}, 105584 (2022)
 
 \bibitem{sidi_dl}
-Sidi, M. L. A., Babou, H. M., Dhib, C.:
-Deep Learning approaches for finding a longest DG-consistent path in biological networks.
-Working paper / Preprint (2024)
+Ahmed Sidi, M.L., Mohamed Babou, H., Dhib, C.: Deep learning approaches for finding a longest DG-consistent path in biological networks. Preprint (2024)
 
-\bibitem{zaharia}
-Zaharia, A., et al.:
-CoMetGeNe: Mining conserved neighborhood patterns in metabolic and genomic contexts.
-BMC Bioinformatics, 20(1):1--20 (2019)
-
-\bibitem{mikolov}
-Mikolov, T., Sutskever, I., Chen, K., Corrado, R., Dean, J.:
-Distributed Representations of Words and Phrases and their Compositionality.
-In: Advances in Neural Information Processing Systems (2013)
-
-\bibitem{perozzi}
-Perozzi, B., Al-Rfou, R., Skiena, S.:
-DeepWalk: Online Learning of Social Representations.
-In: Proceedings of the 20th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (2014)
-
-\bibitem{grover}
-Grover, A., Leskovec, J.:
-node2vec: Scalable Feature Learning for Networks.
-In: Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (2016)
-
-\bibitem{sharan2006}
-Sharan, R., Ideker, T.:
-Modeling protein interaction networks.
-Nature Reviews Genetics, 7(7):575--582 (2006)
-
-\bibitem{fertin2012}
-Fertin, G., Babou, H. M., Rusu, I.:
-Algorithms for sub-network mining in heterogeneous networks.
-Lecture Notes in Computer Science, 7276:184--194 (2012)
-
-\bibitem{tarjan1975}
-Tarjan, R. E.:
-Efficiency of a Good But Not Linear Set Union Algorithm.
-Journal of the ACM, 22(2):215--225 (1975)
-
-\bibitem{erdos1959}
-Erdős, P., Rényi, A.:
-On Random Graphs I.
-Publicationes Mathematicae, 6:290--297 (1959)
+\bibitem{sidi}
+Ahmed Sidi, M.L., Mohamed Babou, H., Dhib, C., Néron, E., Soukhal, A., Nanne, M.F.: Constraint programming approaches for finding conserved metabolic and genomic patterns. Computers \& Operations Research \textbf{183}, 107166 (2025)
 
 \bibitem{bellman1958}
-Bellman, R.:
-On a Routing Problem.
-Quarterly of Applied Mathematics, 16(1):87--90 (1958)
-
-\bibitem{vinyals2015}
-Vinyals, O., Fortunato, M., Jaitly, N.:
-Pointer networks.
-Advances in Neural Information Processing Systems, 28 (2015)
+Bellman, R.: On a routing problem. Quarterly of Applied Mathematics \textbf{16}(1), 87--90 (1958)
 
 \bibitem{bello2016}
-Bello, I., Pham, H., Le, Q. V., Norouzi, M., Bengio, S.:
-Neural combinatorial optimization with reinforcement learning.
-arXiv preprint arXiv:1611.09940 (2016)
+Bello, I., Pham, H., Le, Q.V., Norouzi, M., Bengio, S.: Neural combinatorial optimization with reinforcement learning. arXiv preprint arXiv:1611.09940 (2016)
 
 \bibitem{dai2017}
-Dai, H., Khalil, E. B., Zhang, Y., Dilkina, B., Song, L.:
-Learning combinatorial optimization algorithms over graphs.
-Advances in Neural Information Processing Systems, 30 (2017)
+Dai, H., Khalil, E.B., Zhang, Y., Dilkina, B., Song, L.: Learning combinatorial optimization algorithms over graphs. In: Advances in Neural Information Processing Systems, vol.~30 (2017)
+
+\bibitem{erdos1959}
+Erd\H{o}s, P., Rényi, A.: On random graphs I. Publicationes Mathematicae Debrecen \textbf{6}, 290--297 (1959)
+
+\bibitem{fertin2012}
+Fertin, G., Mohamed Babou, H., Rusu, I.: Algorithms for subnetwork mining in heterogeneous networks. In: Experimental Algorithms (SEA 2012). LNCS, vol.~7276, pp. 184--194. Springer (2012)
+
+\bibitem{grover}
+Grover, A., Leskovec, J.: node2vec: scalable feature learning for networks. In: Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining, pp. 855--864 (2016)
+
+\bibitem{kanehisa2000}
+Kanehisa, M., Goto, S.: KEGG: Kyoto Encyclopedia of Genes and Genomes. Nucleic Acids Research \textbf{28}(1), 27--30 (2000)
 
 \bibitem{karalias2020}
-Karalias, K., Loukas, A.:
-Erdős goes neural: an unsupervised learning framework for combinatorial optimization on graphs.
-Advances in Neural Information Processing Systems, 33:3135--3145 (2020)
+Karalias, N., Loukas, A.: Erd\H{o}s goes neural: an unsupervised learning framework for combinatorial optimization on graphs. In: Advances in Neural Information Processing Systems, vol.~33 (2020)
 
 \bibitem{kingma2014}
-Kingma, D. P., Ba, J.:
-Adam: A method for stochastic optimization.
-arXiv preprint arXiv:1412.6980 (2014)
+Kingma, D.P., Ba, J.: Adam: a method for stochastic optimization. arXiv preprint arXiv:1412.6980 (2014)
+
+\bibitem{mikolov}
+Mikolov, T., Sutskever, I., Chen, K., Corrado, G., Dean, J.: Distributed representations of words and phrases and their compositionality. In: Advances in Neural Information Processing Systems, vol.~26 (2013)
+
+\bibitem{perozzi}
+Perozzi, B., Al-Rfou, R., Skiena, S.: DeepWalk: online learning of social representations. In: Proceedings of the 20th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining, pp. 701--710 (2014)
+
+\bibitem{sharan2006}
+Sharan, R., Ideker, T.: Modeling cellular machinery through biological network comparison. Nature Biotechnology \textbf{24}(4), 427--433 (2006)
+
+\bibitem{tarjan1975}
+Tarjan, R.E.: Efficiency of a good but not linear set union algorithm. Journal of the ACM \textbf{22}(2), 215--225 (1975)
+
+\bibitem{vinyals2015}
+Vinyals, O., Fortunato, M., Jaitly, N.: Pointer networks. In: Advances in Neural Information Processing Systems, vol.~28 (2015)
+
+\bibitem{zaharia}
+Zaharia, A., Labedan, B., Froidevaux, C., Denise, A.: CoMetGeNe: mining conserved neighborhood patterns in metabolic and genomic contexts. BMC Bioinformatics \textbf{20}, 19 (2019)
 
 \end{thebibliography}
 
