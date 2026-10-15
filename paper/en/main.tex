@@ -303,4 +303,41 @@ Zaharia, A., Labedan, B., Froidevaux, C., Denise, A.: CoMetGeNe: mining conserve
 
 \end{thebibliography}
 
+% ============================================================
+% RESPONSE TO THE REVIEWERS
+% ============================================================
+\clearpage
+\section*{Response to the Reviewers}
+\noindent Submission 119, I2COMSAPP'26 --- ``One-to-one SkewGRAM: Applying NLP Embeddings to Biological Graph Optimization''
+\medskip
+
+We thank both reviewers for their careful reading and their suggestions. Since the submitted version, the synthetic benchmark has grown from 38 to 375 instances (300 with 100 vertices and 75 with 200 vertices, 368 of them with an ILP2 solution), and every experiment has been repeated with five random seeds. All numbers in the paper were recomputed on this benchmark. The points raised by the reviewers are answered below.
+
+\subsubsection{Reviewer 1.}
+
+\begin{description}
+\item[R1.1] \emph{Formatting.} The paper now follows the Springer LNNS template (\texttt{llncs} class): standard author and affiliation block, single-paragraph abstract, references in the Springer style, figures redrawn at the text width with readable fonts, tables rebuilt with aligned columns. The paper fits within the 15-page limit.
+
+\item[R1.2] \emph{Evaluation on real biological networks.} We added an evaluation on 25 real metabolic pathways from KEGG (seven bacteria, Sect.~5.3, Table~4). Since ILP2 solutions are not available for them, we computed their exact optimum by enumeration with two exact cuts. Skew-GRAM finds the exact optimum on all 25 pathways and with all five seeds. We also state the limits of this experiment openly: these pathways are small (at most 38 vertices) and $G$ is very sparse, so exact enumeration is faster than our method on them. The experiment shows that the method applies unchanged to real data and returns correct solutions; assessing it on larger real networks, where exact solvers struggle, is listed as future work.
+
+\item[R1.3] \emph{Scalability and the 30,000 Monte-Carlo walks.} We added a scalability study (Sect.~5.5) on 10 instances with 500 vertices and 5 instances with 1000 vertices. Table~5 breaks the running time down by phase: decoding dominates, and one run on a 1000-vertex graph takes about 143\,s. We also measured how quality depends on the number of walks (Fig.~4); this costs no extra computation, because the first $k$ walks of a run are exactly a run with budget $k$. Quality is still increasing at 30,000 walks, so reducing the budget is not a free saving. We discuss three remedies that follow from the structure of the decoder: running the independent walks in parallel, maintaining the $G$-bonus incrementally, and adapting the budget to the instance.
+
+\item[R1.4] \emph{Standard deviations over multiple runs.} Every instance is now solved with five seeds. Table~2 reports means with their standard deviation across seeds, Table~3 gives the per-instance mean and standard deviation of the path length, and a paragraph on stability across seeds (Sect.~5.2) reports the per-instance variability of lengths and running times.
+\end{description}
+
+\subsubsection{Reviewer 2.}
+
+\begin{description}
+\item[R2.1] \emph{French text in Figures 1, 4 and 5.} All figures are now in English. Figure~1 was redrawn with a corrected toy example in which the highlighted path is the unique optimum and the longest path of $D$ is infeasible. The two method diagrams were merged into Fig.~2. The result figures (Figs.~3 and~4) were regenerated from the new experiments.
+
+\item[R2.2] \emph{Title.} We adopted the suggested title, ``One-to-one SkewGRAM: Applying NLP Embeddings to Biological Graph Optimization'', which describes the direction of the transfer more accurately.
+
+\item[R2.3] \emph{Real biological networks.} See our answer to R1.2.
+
+\item[R2.4] \emph{Table 2 alignment.} The per-instance table (now Table~3) was rebuilt with decimal-aligned columns, true minus signs and a separate column for standard deviations, so that values no longer run together. It now covers instances of both sizes.
+\end{description}
+
+In addition, we corrected the citation of ILP2, which was introduced by Ahmed Sidi et al.\ (Computers \& Operations Research, 2022), and we now state that the DL2 result (1.2 vertices) was reported on a different benchmark of 50-vertex instances and was not re-run. The larger benchmark also revealed that one ILP2 reference solution with 200 vertices is not optimal (Skew-GRAM finds a longer feasible path, which we verified independently); the paper therefore treats ILP2 solutions as reference lengths rather than certified optima.
+
 \end{document}
+

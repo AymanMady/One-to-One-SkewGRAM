@@ -1,0 +1,31 @@
+\section*{Réponse aux réviseurs}
+\noindent Soumission 119, I2COMSAPP'26 --- \og One-to-one SkewGRAM : appliquer des embeddings du TAL à l'optimisation de graphes biologiques \fg
+\medskip
+
+Nous remercions les deux réviseurs pour leur lecture attentive et leurs suggestions constructives. Depuis la version soumise, le jeu de données synthétique est passé de 38 à 375 instances (300 de 100 sommets et 75 de 200 sommets, dont 368 disposent d'une solution ILP2), et chaque expérience a été répétée avec cinq graines aléatoires. L'ensemble des résultats numériques de l'article a été recalculé sur ce jeu d'évaluation étendu. Nous répondons ci-dessous aux différents points soulevés par les réviseurs.
+
+\subsubsection{Reviewer 1.}
+
+\begin{description}
+\item[R1.1] \emph{Mise en forme.} L'article adopte désormais le modèle Springer LNNS (classe \texttt{llncs}) : bloc standard d'auteurs et d'affiliations, résumé en un seul paragraphe, références au format Springer, figures redessinées à la largeur du texte avec des polices lisibles, tableaux reconstruits avec des colonnes alignées. L'article respecte la limite des 15 pages.
+
+\item[R1.2] \emph{Évaluation sur des réseaux biologiques réels.} Nous avons ajouté une évaluation sur 25 voies métaboliques réelles issues de KEGG (sept bactéries, Sect.~5.3, Tableau~4). Les solutions ILP2 n'étant pas disponibles pour ces voies, nous avons calculé leur optimum exact par énumération avec deux coupes exactes. Skew-GRAM trouve l'optimum exact sur l'ensemble des 25 voies et pour chacune des cinq graines. Nous explicitons également en toute transparence les limites de cette expérience : ces voies sont de petite taille (au plus 38 sommets) et $G$ y est très creux, ce qui rend l'énumération exacte plus rapide que notre méthode sur ces graphes. Cette expérience démontre néanmoins que la méthode s'applique sans modification à des données réelles et fournit des solutions correctes ; son évaluation sur des réseaux réels de plus grande échelle, où les solveurs exacts peinent, fait l'objet de travaux futurs.
+
+\item[R1.3] \emph{Passage à l'échelle et les 30\,000 marches de Monte-Carlo.} Nous avons inclus une étude de passage à l'échelle (Sect.~5.5) sur 10 instances de 500 sommets et 5 instances de 1000 sommets. Le Tableau~5 détaille le temps d'exécution par phase : la phase de décodage est prépondérante, et une exécution sur un graphe de 1000 sommets requiert environ 143\,s. Nous avons également mesuré l'impact du nombre de marches sur la qualité des solutions (Fig.~4) ; cette analyse ne demande aucun surcoût de calcul, les $k$ premières marches d'une exécution correspondant exactement à une exécution avec un budget de $k$. La qualité continuant de progresser à 30\,000 marches, réduire ce budget n'est pas une économie sans conséquence. Nous discutons trois pistes d'amélioration découlant de la structure du décodeur : paralléliser les marches indépendantes, maintenir le bonus $G$ de manière incrémentale et adapter dynamiquement le budget à l'instance.
+
+\item[R1.4] \emph{Écarts-types sur plusieurs exécutions.} Chaque instance est désormais résolue avec cinq graines aléatoires. Le Tableau~2 rapporte les moyennes accompagnées de leur écart-type entre graines, le Tableau~3 présente la moyenne et l'écart-type de la longueur de chemin par instance, et un paragraphe dédié à la stabilité entre graines (Sect.~5.2) analyse la variabilité des longueurs et des temps d'exécution.
+\end{description}
+
+\subsubsection{Reviewer 2.}
+
+\begin{description}
+\item[R2.1] \emph{Texte en français dans les figures 1, 4 et 5.} Toutes les figures ont été uniformisées (et régénérées en haute qualité). La Figure~1 a été redessinée avec un exemple jouet corrigé où le chemin mis en évidence est l'unique optimum et où le plus long chemin de $D$ est non réalisable. Les deux schémas de méthode ont été fusionnés dans la Fig.~2. Les figures de résultats (Figs.~3 et~4) ont été régénérées à partir des nouvelles expériences.
+
+\item[R2.2] \emph{Titre.} Nous avons adopté le titre suggéré, \og One-to-one SkewGRAM : appliquer des embeddings du TAL à l'optimisation de graphes biologiques \fg{} (traduit de l'anglais \og One-to-one SkewGRAM: Applying NLP Embeddings to Biological Graph Optimization \fg), qui reflète plus précisément le sens du transfert méthodologique.
+
+\item[R2.3] \emph{Réseaux biologiques réels.} Voir notre réponse au point R1.2.
+
+\item[R2.4] \emph{Alignement du Tableau 2.} Le tableau par instance (désormais Tableau~3) a été reconstruit avec des colonnes alignées sur la virgule décimale, de vrais signes moins et une colonne distincte pour les écarts-types, évitant ainsi le chevauchement des valeurs. Il couvre à présent les instances des deux tailles (100 et 200 sommets).
+\end{description}
+
+De plus, nous avons rectifié la citation d'ILP2, introduit par Ahmed Sidi et al.\ (Computers \& Operations Research, 2022), et nous précisons désormais que le résultat de DL2 (1,2 sommet) a été obtenu sur un jeu distinct d'instances de 50 sommets sans avoir été réexécuté. Le jeu d'évaluation étendu a également révélé qu'une solution de référence ILP2 à 200 sommets n'est pas optimale (Skew-GRAM trouvant un chemin réalisable plus long, vérifié indépendamment) ; l'article traite donc les solutions ILP2 comme des longueurs de référence plutôt que comme des optima certifiés.

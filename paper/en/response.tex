@@ -1,12 +1,6 @@
-% Réponse aux reviewers (document séparé, non inclus dans l'article).
-\documentclass{llncs}
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
-\begin{document}
 \section*{Response to the Reviewers}
 \noindent Submission 119, I2COMSAPP'26 --- ``One-to-one SkewGRAM: Applying NLP Embeddings to Biological Graph Optimization''
 \medskip
-
 
 We thank both reviewers for their careful reading and their suggestions. Since the submitted version, the synthetic benchmark has grown from 38 to 375 instances (300 with 100 vertices and 75 with 200 vertices, 368 of them with an ILP2 solution), and every experiment has been repeated with five random seeds. All numbers in the paper were recomputed on this benchmark. The points raised by the reviewers are answered below.
 
@@ -35,5 +29,3 @@ We thank both reviewers for their careful reading and their suggestions. Since t
 \end{description}
 
 In addition, we corrected the citation of ILP2, which was introduced by Ahmed Sidi et al.\ (Computers \& Operations Research, 2022), and we now state that the DL2 result (1.2 vertices) was reported on a different benchmark of 50-vertex instances and was not re-run. The larger benchmark also revealed that one ILP2 reference solution with 200 vertices is not optimal (Skew-GRAM finds a longer feasible path, which we verified independently); the paper therefore treats ILP2 solutions as reference lengths rather than certified optima.
-
-\end{document}
