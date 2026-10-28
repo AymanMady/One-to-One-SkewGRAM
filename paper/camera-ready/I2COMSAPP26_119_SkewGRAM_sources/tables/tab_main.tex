@@ -1,0 +1,22 @@
+% Généré par scripts/make_paper_assets.py — ne pas modifier à la main.
+\setlength{\tabcolsep}{7pt}
+\begin{tabular}{@{}l S[table-format=-3.2]@{\,$\pm$\,}S[table-format=1.2] S[table-format=-3.2]@{\,$\pm$\,}S[table-format=1.2]@{}}
+\toprule
+ & \multicolumn{2}{c}{$n=100$} & \multicolumn{2}{c}{$n=200$} \\
+\midrule
+Instances with an ILP2 solution & \multicolumn{2}{c}{298 / 300} & \multicolumn{2}{c}{70 / 75} \\
+\addlinespace
+\emph{ILP2} \\
+\quad Mean length (vertices) & \multicolumn{2}{c}{9.93} & \multicolumn{2}{c}{9.64} \\
+\quad Mean time (s) & \multicolumn{2}{c}{29.1} & \multicolumn{2}{c}{251.8} \\
+\addlinespace
+\emph{Skew-GRAM} \\
+\quad Mean length (vertices) & 9.47 & 0.02 & 7.89 & 0.12 \\
+\quad Mean gap to ILP2 (\%) & -4.4 & 0.2 & -17.2 & 0.9 \\
+\quad Runs reaching the ILP2 length (\%) & 71.3 & 2.1 & 30.0 & 4.8 \\
+\quad Runs within one vertex of ILP2 (\%) & 90.3 & 1.0 & 53.1 & 3.3 \\
+\quad Mean time (s) & 6.9 & 2.6 & 11.3 & 4.2 \\
+\addlinespace
+Median speedup over ILP2 & \multicolumn{2}{c}{4.0$\times$} & \multicolumn{2}{c}{21.2$\times$} \\
+\bottomrule
+\end{tabular}
